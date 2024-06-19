@@ -3,9 +3,13 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+var user = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
+user = user[..user.IndexOf('\\')];
+
 builder.Services.AddDbContext<DataAccessLayer.AppContext>(options =>
 {
-    options.UseSqlServer("Server=ATLAS\\SQLEXPRESS;Database=ModsenPractice");
+    options.UseSqlServer($@"Server={user}\SQLEXPRESS;Database=ModsenPractice;Trust Server Certificate=Yes");
 });
 
 
