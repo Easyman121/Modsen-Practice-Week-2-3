@@ -9,6 +9,12 @@ namespace DataAccessLayer.Repositories.Interfaces
 {
     public interface IOrderRepository : IRepository<Orders>
     {
+        Task<List<Orders>> GetAllOrders();
+        Task<List<Orders>> GetOrdersByUser(int userId);
+        Task<Orders> GetOrderById(int orderId);
+        Task CreateOrder(Orders order);
+        Task<Orders> GetOrderDetails(int orderId); 
 
     }
+}
 }

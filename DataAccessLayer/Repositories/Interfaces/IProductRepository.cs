@@ -9,5 +9,7 @@ namespace DataAccessLayer.Repositories.Interfaces
 {
     public interface IProductRepository : IRepository<Products>
     {
+        Task<List<Products>> GetProductsByCategory(int categoryId);
+        Task<Products> GetProductById(int productId);
     }
 }
