@@ -5,7 +5,7 @@ public class Orders
 {
     public int Id { get; set; }
     public DateTime DateTime { get; set; }
-    public Users UserId { get; set; }
+    public Users User { get; set; }
 
     public HashSet<OrderItems> OrderItems { get; private set; } = [];
 }
