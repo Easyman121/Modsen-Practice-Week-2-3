@@ -25,19 +25,16 @@ namespace DataAccessLayer.Repositories
         public virtual async Task Insert(TEntity entity)
         {
             await context.Set<TEntity>().AddAsync(entity);
-            await context.SaveChangesAsync();
         }
 
         public virtual async Task Update(TEntity entity)
         {
             context.Entry(entity).State = EntityState.Modified;
-            await context.SaveChangesAsync();
         }
         
         public virtual async Task Delete(TEntity entity)
         {
             context.Set<TEntity>().Remove(entity);
-            await context.SaveChangesAsync();
         }
     }
 }
