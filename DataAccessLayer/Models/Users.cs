@@ -7,5 +7,6 @@ public class Users
     public string UserName { get; set; }
     public int PasswordHash { get; set; }
     public string Email { get; set; }
-    public HashSet<Orders> Orders { get; set; } = [];
+
+    public HashSet<Orders> Orders { get; private set; } = [];
 }

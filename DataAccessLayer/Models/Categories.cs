@@ -5,5 +5,6 @@ public class Categories
 {
     public int Id { get; set; }
     public string Name { get; set; }
-    public HashSet<Products> Products { get; set; } = [];
+
+    public HashSet<Products> Products { get; private set; } = [];
 }
