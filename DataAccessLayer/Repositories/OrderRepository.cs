@@ -1,4 +1,5 @@
-﻿using DataAccessLayer.Repositories.Interfaces;
+﻿using DataAccessLayer.Models;
+using DataAccessLayer.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,7 @@ namespace DataAccessLayer.Repositories
         public async Task<List<Orders>> GetOrdersByUser(int userId)
         {
             return await context.Set<Orders>()
-                .Where(o => o.UserId == userId)
+                .Where(o => o.UserId.Id == userId)
                 .ToListAsync();
         }
 

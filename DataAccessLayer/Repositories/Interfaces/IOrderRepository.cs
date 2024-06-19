@@ -17,4 +17,4 @@ namespace DataAccessLayer.Repositories.Interfaces
 
     }
 }
-}
+

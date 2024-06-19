@@ -16,8 +16,7 @@ namespace DataAccessLayer.Repositories
         }
         public async Task<Users> GetUserById(int id)
         {
-            return await context.Set<Users>()
-                .FindAsync(id);
+            return await context.Set<Users>().FindAsync(id);
         }
     }
 }

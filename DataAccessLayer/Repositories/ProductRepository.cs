@@ -1,4 +1,5 @@
-﻿using DataAccessLayer.Repositories.Interfaces;
+﻿using DataAccessLayer.Models;
+using DataAccessLayer.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -16,7 +17,7 @@ namespace DataAccessLayer.Repositories
         public async Task<List<Products>> GetProductsByCategory(int categoryId)
         {
             return await context.Set<Products>()
-                .Where(p => p.CategoryId == categoryId)
+                .Where(p => p.CategoryId.Id == categoryId)
                 .ToListAsync();
         }
 
