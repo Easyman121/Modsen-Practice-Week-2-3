@@ -11,15 +11,9 @@ namespace DataAccessLayer.Repositories
 {
     internal class OrderRepository: GenericRepository<Orders>, IOrderRepository
     {
-        public OrderRepository(DbContext context) : base(context)
+        public OrderRepository(AppContext context) : base(context)
         {
         }
-        public async Task<List<Orders>> GetAllOrders()
-        {
-            return await context.Set<Orders>()
-                                .ToListAsync();
-        }
-
         public async Task<List<Orders>> GetOrdersByUser(int userId)
         {
             return await context.Set<Orders>()
@@ -27,23 +21,11 @@ namespace DataAccessLayer.Repositories
                 .ToListAsync();
         }
 
-        public async Task<Orders> GetOrderById(int orderId)
-        {
-            return await context.Set<Orders>()
-                .Include(o => o.OrderItems)
-                .FirstOrDefaultAsync(o => o.Id == orderId);
-        }
-
-        public async Task CreateOrder(Orders order)
-        {
-            await context.Set<Orders>().AddAsync(order);
-            await context.SaveChangesAsync();
-        }
         public async Task<Orders> GetOrderDetails(int orderId)
         {
             return await context.Set<Orders>()
                 .Include(o => o.OrderItems)
-                    .ThenInclude(oi => oi.ProductId)
+                .ThenInclude(oi => oi.ProductId)
                 .FirstOrDefaultAsync(o => o.Id == orderId);
         }
     }

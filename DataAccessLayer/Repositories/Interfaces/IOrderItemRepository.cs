@@ -9,7 +9,5 @@ namespace DataAccessLayer.Repositories.Interfaces
 {
     public interface IOrderItemRepository : IRepository<OrderItems>
     {
-        Task<OrderItems> GetOrderItemById(int id);
-
     }
 }

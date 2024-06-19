@@ -11,12 +11,8 @@ namespace DataAccessLayer.Repositories
 {
     public class UserRepository : GenericRepository<Users>, IUserRepository
     {
-        public UserRepository(DbContext context) : base(context)
+        public UserRepository(AppContext context) : base(context)
         {
-        }
-        public async Task<Users> GetUserById(int id)
-        {
-            return await context.Set<Users>().FindAsync(id);
         }
     }
 }

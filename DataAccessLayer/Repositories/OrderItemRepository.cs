@@ -11,13 +11,8 @@ namespace DataAccessLayer.Repositories
 {
     public class OrderItemRepository : GenericRepository<OrderItems>, IOrderItemRepository
     {
-        public OrderItemRepository(DbContext context) : base(context)
+        public OrderItemRepository(AppContext context) : base(context)
         {
-        }
-        public async Task<OrderItems> GetOrderItemById(int id)
-        {
-            return await context.Set<OrderItems>()
-                .FindAsync(id);
         }
     }
 }

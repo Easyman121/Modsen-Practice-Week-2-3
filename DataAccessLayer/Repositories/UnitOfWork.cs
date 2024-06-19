@@ -3,9 +3,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessLayer.Repositories
 {
+    //The UnitOfWork class provides access to repositories
+    //and provides a common context for all repositories.
     public class UnitOfWork : IUnitOfWork
     {
-        private readonly DbContext _context;
+        private readonly AppContext _context;
 
         public ICategoryRepository Category { get; }
         public IOrderItemRepository OrderItem { get; }
@@ -13,7 +15,7 @@ namespace DataAccessLayer.Repositories
         public IUserRepository User { get; }
         public IProductRepository Product { get; }
 
-        public UnitOfWork(DbContext context)
+        public UnitOfWork(AppContext context)
         {
             _context = context;
             Category = new CategoryRepository(_context);

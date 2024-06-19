@@ -9,11 +9,12 @@ using System.Threading.Tasks;
 
 namespace DataAccessLayer.Repositories
 {
+    //Generic repository covers CRUD operations
     public class GenericRepository<TEntity> : IRepository<TEntity> where TEntity : class
     {
-        protected DbContext context;
+        protected AppContext context;
 
-        public GenericRepository(DbContext context)
+        public GenericRepository(AppContext context)
         {
             this.context = context; 
         }

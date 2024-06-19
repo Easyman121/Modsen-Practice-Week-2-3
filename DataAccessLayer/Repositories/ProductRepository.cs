@@ -11,7 +11,7 @@ namespace DataAccessLayer.Repositories
 {
     internal class ProductRepository : GenericRepository<Products>, IProductRepository
     {
-        public ProductRepository(DbContext context) : base(context)
+        public ProductRepository(AppContext context) : base(context)
         {
         }
         public async Task<List<Products>> GetProductsByCategory(int categoryId)
@@ -21,10 +21,5 @@ namespace DataAccessLayer.Repositories
                 .ToListAsync();
         }
 
-        public async Task<Products> GetProductById(int productId)
-        {
-            return await context.Set<Products>()
-                .FindAsync(productId);
-        }
     }
 }

@@ -9,6 +9,5 @@ namespace DataAccessLayer.Repositories.Interfaces
 {
     public interface IUserRepository : IRepository<Users>
     {
-        Task<Users> GetUserById(int id);
     }
 }

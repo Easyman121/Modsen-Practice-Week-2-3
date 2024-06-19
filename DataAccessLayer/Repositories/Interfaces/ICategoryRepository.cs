@@ -9,7 +9,6 @@ namespace DataAccessLayer.Repositories.Interfaces
 {
     public interface ICategoryRepository : IRepository<Categories>
     {
-        Task<List<Categories>> GetAllCategories();
-        Task<Categories> GetCategoryById(int categoryId); 
+
     }
 }
