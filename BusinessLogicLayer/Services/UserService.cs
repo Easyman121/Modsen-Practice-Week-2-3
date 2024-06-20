@@ -34,3 +34,19 @@ namespace BusinessLogicLayer.Services
         // other methods?
     }
 }
+/*
+
+BindingList <strin> errors = new BindingList <string>();
+
+UserValidator validator = new UserValidator();
+
+ValidationResult results = validator.Validate(user);
+
+if(results.IsValid == false)
+{
+    foreach (ValidationFailure failure in results.Errors)
+    {
+        errors.Add(failure.ErrorMessage);
+    }
+}
+ */
