@@ -12,28 +12,30 @@ namespace DataAccessLayer.Repositories
     //Generic repository covers CRUD operations
     public class GenericRepository<TEntity> : IRepository<TEntity> where TEntity : class
     {
-        protected AppContext context;
+        protected DbContext context;
 
-        public GenericRepository(AppContext context)
+        public GenericRepository(DbContext context)
         {
             this.context = context; 
         }
 
-        public virtual async Task<TEntity> GetById(int id) => await context.Set<TEntity>().FindAsync(id).AsTask();
+        public virtual async Task<TEntity> GetByIdAsync(int id, CancellationToken cancellationToken) 
+            => await context.Set<TEntity>().FindAsync([id], cancellationToken).AsTask();
 
-        public virtual async Task<List<TEntity>> GetAll() => await context.Set<TEntity>().ToListAsync();
+        public virtual async Task<List<TEntity>> GetAllAsync(CancellationToken cancellationToken) 
+            => await context.Set<TEntity>().ToListAsync(cancellationToken);
 
-        public virtual async Task Insert(TEntity entity)
+        public virtual async Task InsertAsync(TEntity entity, CancellationToken cancellationToken)
         {
-            await context.Set<TEntity>().AddAsync(entity);
+            await context.Set<TEntity>().AddAsync(entity, cancellationToken);
         }
 
-        public virtual async Task Update(TEntity entity)
+        public virtual async Task UpdateAsync(TEntity entity)
         {
             context.Entry(entity).State = EntityState.Modified;
         }
         
-        public virtual async Task Delete(TEntity entity)
+        public virtual async Task DeleteAsync(TEntity entity)
         {
             context.Set<TEntity>().Remove(entity);
         }

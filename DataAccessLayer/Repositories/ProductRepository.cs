@@ -14,11 +14,11 @@ namespace DataAccessLayer.Repositories
         public ProductRepository(AppContext context) : base(context)
         {
         }
-        public async Task<List<Products>> GetProductsByCategory(int categoryId)
+        public async Task<List<Products>> GetProductsByCategoryAsync(int categoryId, CancellationToken cancellationToken)
         {
             return await context.Set<Products>()
                 .Where(p => p.CategoryId.Id == categoryId)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
         }
 
     }

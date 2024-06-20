@@ -25,28 +25,25 @@ namespace DataAccessLayer.Repositories
             Product = new ProductRepository(_context);
         }
 
-        public Task Save()
-        {
-            return _context.SaveChangesAsync();
-        }
+        public async Task SaveAsync(CancellationToken cancellationToken) => _context.SaveChangesAsync(cancellationToken);
 
         private bool disposed = false;
 
-        protected virtual void Dispose(bool disposing)
+        protected virtual async ValueTask DisposeAsync(bool disposing)
         {
             if (!this.disposed)
             {
                 if (disposing)
                 {
-                    _context.Dispose();
+                    await _context.DisposeAsync();
                 }
             }
             this.disposed = true;
         }
 
-        public void Dispose()
+        public async void DisposeAsync()
         {
-            Dispose(true);
+            await DisposeAsync(true);
             GC.SuppressFinalize(this);
         }
     }

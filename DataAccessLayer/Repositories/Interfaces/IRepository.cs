@@ -9,10 +9,10 @@ namespace DataAccessLayer.Repositories.Interfaces
 {
     public interface IRepository<TEntity> where TEntity : class
     {
-        Task<TEntity> GetById(int id);
-        Task<List<TEntity>> GetAll();
-        Task Insert(TEntity entity);
-        Task Delete(TEntity entity);
-        Task Update(TEntity entity);
+        Task<TEntity> GetByIdAsync(int id, CancellationToken cancellationToken);
+        Task<List<TEntity>> GetAllAsync(CancellationToken cancellationToken);
+        Task InsertAsync(TEntity entity, CancellationToken cancellationToken);
+        Task DeleteAsync(TEntity entity);
+        Task UpdateAsync(TEntity entity);
     }
 }
