@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BusinessLogicLayer.DTO
+namespace BusinessLogicLayer.DTO.Request
 {
-    public class CategoryDto
+    public class CategoryRequestDto
     {
-        public int Id {  get; set; }
         public string Name { get; set; }
     }
 }
