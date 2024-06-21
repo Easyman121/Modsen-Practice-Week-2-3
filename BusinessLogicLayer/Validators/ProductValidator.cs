@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using DataAccessLayer.Models;
-using System.Text.RegularExpressions;
 
 namespace BusinessLogicLayer.Validators
 {
@@ -32,7 +31,6 @@ namespace BusinessLogicLayer.Validators
 
         private bool ContainsForbiddenWords(string description)
         {
-            // Define a list of forbidden words
             var forbiddenWords = new[] { "forbidden", "invalid", "restricted" };
             foreach (var word in forbiddenWords)
             {

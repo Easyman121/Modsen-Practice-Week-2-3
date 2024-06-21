@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using DataAccessLayer.Models;
-using System;
 
 namespace BusinessLogicLayer.Validators
 {
