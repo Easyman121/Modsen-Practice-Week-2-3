@@ -5,7 +5,7 @@ namespace BusinessLogicLayer.Services.Interfaces;
 
 internal interface IProductService
 {
-    Task SetProductAsync(ProductRequestDto productDto);
-    Task<ProductResponseDto> GetProductAsync(int? id);
-    Task<IEnumerable<ProductResponseDto>> GetProductsAsync();
+    Task SetProductAsync(ProductRequestDto productDto, CancellationToken cancellationToken);
+    Task<ProductResponseDto> GetProductAsync(int? id, CancellationToken cancellationToken);
+    Task<IEnumerable<ProductResponseDto>> GetProductsAsync(CancellationToken cancellationToken);
 }

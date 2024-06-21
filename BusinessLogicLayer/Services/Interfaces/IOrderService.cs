@@ -5,7 +5,7 @@ namespace BusinessLogicLayer.Services.Interfaces;
 
 internal interface IOrderService
 {
-    Task SetOrderAsync(OrderRequestDto orderDto);
-    Task<OrderResponseDto> GetOrderAsync(int? id);
-    Task<IEnumerable<OrderResponseDto>> GetOrdersAsync();
+    Task SetOrderAsync(OrderRequestDto orderDto, CancellationToken cancellationToken);
+    Task<OrderResponseDto> GetOrderAsync(int? id, CancellationToken cancellationToken);
+    Task<IEnumerable<OrderResponseDto>> GetOrdersAsync(CancellationToken cancellationToken);
 }
