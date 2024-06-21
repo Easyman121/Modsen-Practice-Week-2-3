@@ -3,9 +3,11 @@ using BusinessLogicLayer.DTO.Response;
 
 namespace BusinessLogicLayer.Services.Interfaces;
 
-internal interface ICategoryService
+internal interface IUserService
 {
-    Task SetCategoryAsync(CategoryRequestDto categoryDto);
-    Task<CategoryResponseDto> GetCategoryAsync(int? id);
-    Task<IEnumerable<CategoryResponseDto>> GetCategoriesAsync();
+    Task SetUserAsync(UserRequestDto userDto, CancellationToken cancellationToken);
+    Task<UserResponseDto> GetUserAsync(int id, CancellationToken cancellationToken);
+    Task<IEnumerable<UserResponseDto>> GetUsersAsync(CancellationToken cancellationToken);
+    Task<UserResponseDto> LoginAsync(UserRequestDto userDto, CancellationToken cancellationToken);
+    Task<UserResponseDto> RegistrationAsync(UserRequestDto userDto, CancellationToken cancellationToken);
 }
