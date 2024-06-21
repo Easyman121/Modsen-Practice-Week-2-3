@@ -1,11 +1,11 @@
 ﻿using FluentValidation;
-using DataAccessLayer.Models;
+using BusinessLogicLayer.DTO.Request;
 
 namespace BusinessLogicLayer.Validators
 {
-    public class CategoryValidator : AbstractValidator<Categories>
+    public class CategoryRequestDtoValidator : AbstractValidator<CategoryRequestDto>
     {
-        public CategoryValidator()
+        public CategoryRequestDtoValidator()
         {
             RuleFor(c => c.Name)
                 .Cascade(CascadeMode.Stop)

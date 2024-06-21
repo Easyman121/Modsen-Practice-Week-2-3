@@ -1,11 +1,11 @@
 ﻿using FluentValidation;
-using DataAccessLayer.Models;
+using BusinessLogicLayer.DTO.Request;
 
 namespace BusinessLogicLayer.Validators
 {
-    public class UserValidator : AbstractValidator<Users>
+    public class UserRequestDtoValidator : AbstractValidator<UserRequestDto>
     {
-        public UserValidator()
+        public UserRequestDtoValidator()
         {
             RuleFor(u => u.UserName)
                 .Cascade(CascadeMode.Stop)
@@ -18,7 +18,7 @@ namespace BusinessLogicLayer.Validators
                 .NotEmpty().WithMessage("{PropertyName} is empty!")
                 .EmailAddress().WithMessage("Invalid {PropertyName} format!");
 
-            RuleFor(u => u.PasswordHash)
+            RuleFor(u => u.Password)
                 .Cascade(CascadeMode.Stop)
                 .NotEmpty().WithMessage("{PropertyName} is empty!");
         }

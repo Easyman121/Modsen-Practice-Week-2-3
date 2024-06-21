@@ -1,11 +1,11 @@
 ﻿using FluentValidation;
-using DataAccessLayer.Models;
+using BusinessLogicLayer.DTO.Request;
 
 namespace BusinessLogicLayer.Validators
 {
-    public class ProductValidator : AbstractValidator<Products>
+    public class ProductRequestDtoValidator : AbstractValidator<ProductRequestDto>
     {
-        public ProductValidator()
+        public ProductRequestDtoValidator()
         {
             RuleFor(p => p.Name)
                 .Cascade(CascadeMode.Stop)
@@ -24,22 +24,14 @@ namespace BusinessLogicLayer.Validators
                 .GreaterThan(0).WithMessage("{PropertyName} should be greater than 0")
                 .LessThanOrEqualTo(1000000).WithMessage("{PropertyName} should be less than or equal to 1,000,000");
 
-            RuleFor(p => p.Category)
-                .NotNull().WithMessage("Category is required.")
-                .SetValidator(new CategoryValidator());
+            RuleFor(p => p.CategoryName)
+                .NotEmpty().WithMessage("Category name is required.");
         }
 
-        private bool ContainsForbiddenWords(string description)
+        public static bool ContainsForbiddenWords(string description)
         {
             var forbiddenWords = new[] { "forbidden", "invalid", "restricted" };
-            foreach (var word in forbiddenWords)
-            {
-                if (description.Contains(word, StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-            }
-            return false;
+            return forbiddenWords.Any(word => description.Contains(word, StringComparison.OrdinalIgnoreCase));
         }
     }
 }
