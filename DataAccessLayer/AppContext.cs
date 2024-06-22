@@ -23,16 +23,12 @@ public class AppContext(DbContextOptions options) : DbContext(options)
         var products = modelBuilder.Entity<Products>();
         products.Property(t => t.Name).HasMaxLength(32);
         products.Property(t => t.Description).HasMaxLength(256);
-        products.Ignore(t => t.Category);
         products.HasIndex(t => t.Name).IsUnique();
 
         var orders = modelBuilder.Entity<Orders>();
         orders.Ignore(t => t.OrderItems);
-        orders.Ignore(t => t.User);
 
-        var orderItems = modelBuilder.Entity<OrderItems>();
-        orderItems.Ignore(t => t.Order);
-        orderItems.Ignore(t => t.Product);
+        //var orderItems = modelBuilder.Entity<OrderItems>();
 
         var users = modelBuilder.Entity<Users>();
         users.Property(t => t.Email).HasMaxLength(32);
