@@ -14,19 +14,20 @@ namespace DataAccessLayer.Repositories
         public OrderRepository(AppContext context) : base(context)
         {
         }
-        public async Task<List<Orders>> GetOrdersByUser(int userId)
+
+        public async Task<List<Orders>> GetOrdersByUserAsync(int userId, CancellationToken cancellationToken)
         {
             return await context.Set<Orders>()
                 .Where(o => o.UserId.Id == userId)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
         }
 
-        public async Task<Orders> GetOrderDetails(int orderId)
+        public async Task<Orders> GetOrderDetailsAsync(int orderId, CancellationToken cancellationToken)
         {
             return await context.Set<Orders>()
                 .Include(o => o.OrderItems)
                 .ThenInclude(oi => oi.ProductId)
-                .FirstOrDefaultAsync(o => o.Id == orderId);
+                .FirstOrDefaultAsync(o => o.Id == orderId, cancellationToken);
         }
     }
 }

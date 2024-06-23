@@ -9,6 +9,6 @@ namespace DataAccessLayer.Repositories.Interfaces
 {
     public interface IProductRepository : IRepository<Products>
     {
-        Task<List<Products>> GetProductsByCategory(int categoryId);
+        Task<List<Products>> GetProductsByCategoryAsync(int categoryId, CancellationToken cancellationToken);
     }
 }
