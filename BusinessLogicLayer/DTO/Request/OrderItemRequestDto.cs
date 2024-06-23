@@ -1,9 +1,10 @@
 ﻿using BusinessLogicLayer.DTO.Response;
 
-namespace BusinessLogicLayer.DTO.Request;
+namespace BusinessLogicLayer.DTO.Request
 
 public class OrderItemRequestDto
 {
-    public ProductResponseDto Product { get; set; }
+    public ProductRequestDto Product { get; set; }
     public int Count { get; set; }
 }
+

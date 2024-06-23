@@ -13,6 +13,7 @@ namespace DataAccessLayer.Repositories.Interfaces
         public IOrderRepository Order { get; }
         public IUserRepository User { get; }
         public IProductRepository Product { get; }
+
         Task SaveAsync(CancellationToken cancellationToken);
     }
 }
