@@ -12,7 +12,7 @@ namespace DataAccessLayer.Repositories.Interfaces
         Task<TEntity> GetByIdAsync(int id, CancellationToken cancellationToken);
         Task<List<TEntity>> GetAllAsync(CancellationToken cancellationToken);
         Task InsertAsync(TEntity entity, CancellationToken cancellationToken);
-        Task DeleteAsync(TEntity entity);
         Task UpdateAsync(TEntity entity);
+        void Delete(TEntity entity);
     }
 }

@@ -35,7 +35,7 @@ namespace DataAccessLayer.Repositories
             context.Entry(entity).State = EntityState.Modified;
         }
         
-        public virtual async Task DeleteAsync(TEntity entity)
+        public virtual void Delete(TEntity entity)
         {
             context.Set<TEntity>().Remove(entity);
         }

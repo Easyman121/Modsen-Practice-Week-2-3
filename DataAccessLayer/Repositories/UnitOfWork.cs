@@ -25,7 +25,7 @@ namespace DataAccessLayer.Repositories
             Product = new ProductRepository(_context);
         }
 
-        public async Task SaveAsync(CancellationToken cancellationToken) => _context.SaveChangesAsync(cancellationToken);
+        public async Task SaveAsync(CancellationToken cancellationToken) => await _context.SaveChangesAsync(cancellationToken);
 
         private bool disposed = false;
 
@@ -41,10 +41,11 @@ namespace DataAccessLayer.Repositories
             this.disposed = true;
         }
 
-        public async void DisposeAsync()
+        public async ValueTask DisposeAsync()
         {
             await DisposeAsync(true);
             GC.SuppressFinalize(this);
         }
+
     }
 }
