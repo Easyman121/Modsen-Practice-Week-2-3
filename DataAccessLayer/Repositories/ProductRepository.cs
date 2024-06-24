@@ -4,15 +4,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessLayer.Repositories;
 
-internal class ProductRepository : GenericRepository<Products>, IProductRepository
+internal class ProductRepository : GenericRepository<Product>, IProductRepository
 {
     public ProductRepository(AppContext context) : base(context)
     {
     }
 
-    public async Task<List<Products>> GetProductsByCategoryAsync(int categoryId, CancellationToken cancellationToken)
+    public async Task<List<Product>> GetProductsByCategoryAsync(int categoryId, CancellationToken cancellationToken)
     {
-        return await Context.Set<Products>()
+        return await Context.Set<Product>()
             .Where(p => p.CategoryId == categoryId)
             .ToListAsync(cancellationToken);
     }

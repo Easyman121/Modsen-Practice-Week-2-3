@@ -5,36 +5,36 @@ namespace DataAccessLayer;
 
 public class AppContext(DbContextOptions options) : DbContext(options)
 {
-    public DbSet<Categories> Categories { get; set; }
-    public DbSet<Products> Products { get; set; }
-    public DbSet<Orders> Orders { get; set; }
-    public DbSet<OrderItems> OrderItems { get; set; }
-    public DbSet<Users> Users { get; set; }
+    public DbSet<Category> Category { get; set; }
+    public DbSet<Product> Product { get; set; }
+    public DbSet<Order> Order { get; set; }
+    public DbSet<OrderItem> OrderItem { get; set; }
+    public DbSet<User> User { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        var categories = modelBuilder.Entity<Categories>();
-        categories.Property(t => t.Name).HasMaxLength(32);
-        categories.Ignore(t => t.Products);
-        categories.HasIndex(t => t.Name).IsUnique();
+        var category = modelBuilder.Entity<Category>();
+        category.Property(t => t.Name).HasMaxLength(32);
+        category.Ignore(t => t.Products);
+        category.HasIndex(t => t.Name).IsUnique();
 
-        var products = modelBuilder.Entity<Products>();
-        products.Property(t => t.Name).HasMaxLength(32);
-        products.Property(t => t.Description).HasMaxLength(256);
-        products.HasIndex(t => t.Name).IsUnique();
+        var product = modelBuilder.Entity<Product>();
+        product.Property(t => t.Name).HasMaxLength(32);
+        product.Property(t => t.Description).HasMaxLength(256);
+        product.HasIndex(t => t.Name).IsUnique();
 
-        var orders = modelBuilder.Entity<Orders>();
-        orders.Ignore(t => t.OrderItems);
+        var order = modelBuilder.Entity<Order>();
+        order.Ignore(t => t.OrderItems);
 
-        //var orderItems = modelBuilder.Entity<OrderItems>();
+        //var orderItem = modelBuilder.Entity<OrderItem>();
 
-        var users = modelBuilder.Entity<Users>();
-        users.Property(t => t.Email).HasMaxLength(32);
-        users.Property(t => t.UserName).HasMaxLength(16);
-        users.Ignore(t => t.Orders);
-        users.HasIndex(t => t.Email).IsUnique();
-        users.HasIndex(t => t.UserName).IsUnique();
+        var user = modelBuilder.Entity<User>();
+        user.Property(t => t.Email).HasMaxLength(32);
+        user.Property(t => t.UserName).HasMaxLength(16);
+        user.Ignore(t => t.Orders);
+        user.HasIndex(t => t.Email).IsUnique();
+        user.HasIndex(t => t.UserName).IsUnique();
     }
 }

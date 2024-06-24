@@ -2,6 +2,6 @@
 
 namespace DataAccessLayer.Repositories.Interfaces;
 
-public interface ICategoryRepository : IRepository<Categories>
+public interface ICategoryRepository : IRepository<Category>
 {
 }
