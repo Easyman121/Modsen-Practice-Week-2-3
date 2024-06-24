@@ -9,5 +9,5 @@ public class Category
     public int Id { get; set; }
     public string Name { get; set; }
 
-    public ICollection<Product> Products { get; private set; } = new List<Product>();
+    public List<Product> Products { get; private set; } = [];
 }

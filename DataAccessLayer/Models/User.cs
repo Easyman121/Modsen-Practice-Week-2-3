@@ -11,5 +11,5 @@ public class User
     public int PasswordHash { get; set; }
     public string Email { get; set; }
 
-    public ICollection<Order> Orders { get; private set; } = new List<Order>();
+    public List<Order> Orders { get; private set; } = [];
 }

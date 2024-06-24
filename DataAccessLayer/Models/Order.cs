@@ -8,5 +8,5 @@ public class Order
     public int UserId { get; set; }
 
     public User User { get; set; }
-    public ICollection<OrderItem> OrderItems { get; private set; } = new List<OrderItem>();
+    public List<OrderItem> OrderItems { get; private set; } = [];
 }
