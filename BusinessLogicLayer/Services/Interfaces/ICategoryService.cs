@@ -5,7 +5,9 @@ namespace BusinessLogicLayer.Services.Interfaces;
 
 internal interface ICategoryService
 {
-    Task SetCategoryAsync(CategoryRequestDto? categoryDto, CancellationToken cancellationToken);
+    Task InsertCategoryAsync(CategoryRequestDto categoryDto, CancellationToken cancellationToken);
+    Task UpdateCategoryAsync(CategoryRequestDto categoryDto, CancellationToken cancellationToken);
+    Task DeleteCategoryAsync(CategoryRequestDto categoryDto, CancellationToken cancellationToken);
     Task<CategoryResponseDto> GetCategoryAsync(int id, CancellationToken cancellationToken);
     Task<IEnumerable<CategoryResponseDto>> GetCategoriesAsync(CancellationToken cancellationToken);
 }
