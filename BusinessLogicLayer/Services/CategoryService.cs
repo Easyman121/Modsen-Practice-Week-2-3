@@ -1,6 +1,8 @@
 ﻿using BusinessLogicLayer.DTO.Request;
 using BusinessLogicLayer.DTO.Response;
+using BusinessLogicLayer.Exceptions;
 using BusinessLogicLayer.Services.Interfaces;
+using DataAccessLayer.Models;
 using DataAccessLayer.Repositories.Interfaces;
 
 namespace BusinessLogicLayer.Services;
@@ -9,22 +11,17 @@ internal class CategoryService : ICategoryService
 {
     private IUnitOfWork DataBase { get; set; }
 
-    public async Task InsertCategoryAsync(CategoryRequestDto categoryDto, CancellationToken cancellationToken) =>
-        ArgumentNullException.ThrowIfNull(categoryDto);
-
-    public async Task SetCategoryAsync(CategoryRequestDto? categoryDto, CancellationToken cancellationToken)
+    public async Task InsertCategoryAsync(CategoryRequestDto categoryDto, CancellationToken cancellationToken)
     {
-        if (categoryDto == null)
+        CheckFields(categoryDto, cancellationToken);
+        List<Category> a = await DataBase.Category.GetAllAsync(cancellationToken);
+        if (a.Exists(c => c.Name == categoryDto.Name))
         {
-            throw new Exception("ebanyi rot");
+            throw new RequestDtoException("The name is not unique");
         }
 
-        if (DataBase.Category == null)
-        {
-            throw new Exception("ebanyi rot");
-        }
-
-        await DataBase.Category.InsertAsync(cat, cancellationToken);
+        await DataBase.Category.InsertAsync(a[0], cancellationToken);
+        //await DataBase.Category.InsertAsync(cat, cancellationToken);
     }
 
     public async Task<CategoryResponseDto> GetCategoryAsync(int id, CancellationToken cancellationToken)
@@ -41,9 +38,22 @@ internal class CategoryService : ICategoryService
         return catsResponse;
     }
 
-    public static void CheckFields(CategoryRequestDto categoryDto)
+    public static void CheckFields(CategoryRequestDto categoryDto, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(categoryDto);
+
+        ArgumentNullException.ThrowIfNull(cancellationToken);
+
+        //var Name = categoryDto.Name;
         ArgumentException.ThrowIfNullOrWhiteSpace(categoryDto.Name);
+        /*
+        if (Name.Length > 32)
+        {
+            throw new RequestDtoException("Name exceeds 32 characters");
+        }
+
+        string pattern = @"^[A-Z][a-z\-_][0-9]*$";
+        if (!Regex.IsMatch(Name, pattern))
+            throw new RequestDtoException("Name can only contain latin characters,numbers, dashes and underscores");*/
     }
 }
