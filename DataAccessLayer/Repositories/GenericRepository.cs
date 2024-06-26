@@ -1,10 +1,11 @@
-﻿using DataAccessLayer.Repositories.Interfaces;
+﻿using DataAccessLayer.Models;
+using DataAccessLayer.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessLayer.Repositories;
 
 //Generic repository covers CRUD operations
-public class GenericRepository<TEntity> : IRepository<TEntity> where TEntity : class
+public class GenericRepository<TEntity> : IRepository<TEntity> where TEntity : Model
 {
     protected AppContext Context;
 
@@ -19,9 +20,10 @@ public class GenericRepository<TEntity> : IRepository<TEntity> where TEntity : c
     public virtual async Task<List<TEntity>> GetAllAsync(CancellationToken cancellationToken)
         => await Context.Set<TEntity>().ToListAsync(cancellationToken);
 
-    public virtual async Task InsertAsync(TEntity entity, CancellationToken cancellationToken)
+    public virtual async Task<int> InsertAsync(TEntity entity, CancellationToken cancellationToken)
     {
-        await Context.Set<TEntity>().AddAsync(entity, cancellationToken);
+        var entityEntry = await Context.Set<TEntity>().AddAsync(entity, cancellationToken);
+        return entityEntry.Entity.Id;
     }
 
     public virtual async Task UpdateAsync(TEntity entity, CancellationToken cancellationToken)
