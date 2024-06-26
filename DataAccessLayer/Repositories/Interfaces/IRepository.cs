@@ -1,10 +1,12 @@
-﻿namespace DataAccessLayer.Repositories.Interfaces;
+﻿using DataAccessLayer.Models;
 
-public interface IRepository<TEntity> where TEntity : class
+namespace DataAccessLayer.Repositories.Interfaces;
+
+public interface IRepository<TEntity> where TEntity : Model
 {
     Task<TEntity?> GetByIdAsync(int id, CancellationToken cancellationToken);
     Task<List<TEntity>> GetAllAsync(CancellationToken cancellationToken);
-    Task InsertAsync(TEntity entity, CancellationToken cancellationToken);
+    Task<int> InsertAsync(TEntity entity, CancellationToken cancellationToken);
     Task UpdateAsync(TEntity entity, CancellationToken cancellationToken);
     Task DeleteAsync(TEntity entity, CancellationToken cancellationToken);
 }
