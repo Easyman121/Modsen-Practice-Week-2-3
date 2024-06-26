@@ -1,4 +1,6 @@
-﻿using BusinessLogicLayer.DTO.Request;
+﻿using AutoMapper;
+using BusinessLogicLayer.DTO;
+using BusinessLogicLayer.DTO.Request;
 using BusinessLogicLayer.DTO.Response;
 using BusinessLogicLayer.Exceptions;
 using BusinessLogicLayer.Services.Interfaces;
@@ -10,50 +12,82 @@ namespace BusinessLogicLayer.Services;
 internal class CategoryService : ICategoryService
 {
     private IUnitOfWork DataBase { get; set; }
+    private IMapper _mapper = new MapperConfiguration(x => x.AddProfile<AppMappingProfile>()).CreateMapper();
 
     public async Task InsertCategoryAsync(CategoryRequestDto categoryDto, CancellationToken cancellationToken)
     {
         CheckFields(categoryDto, cancellationToken);
-        List<Category> a = await DataBase.Category.GetAllAsync(cancellationToken);
-        if (a.Exists(c => c.Name == categoryDto.Name))
+        List<Category> allCats = await DataBase.Category.GetAllAsync(cancellationToken);
+        if (allCats.Exists(c => c.Name == categoryDto.Name))
         {
             throw new RequestDtoException("The name is not unique");
         }
 
-        await DataBase.Category.InsertAsync(a[0], cancellationToken);
-        //await DataBase.Category.InsertAsync(cat, cancellationToken);
+        await DataBase.Category.InsertAsync(_mapper.Map<Category>(categoryDto), cancellationToken);
+    }
+
+    public async Task UpdateCategoryAsync(int id, CategoryRequestDto categoryDto, CancellationToken cancellationToken)
+    {
+        CheckFields(categoryDto, cancellationToken);
+        if (id < 0)
+        {
+            throw new RequestDtoException("Id must be 0 and higher");
+        }
+
+        var cat = await DataBase.Category.GetByIdAsync(id, cancellationToken);
+        if (cat == null)
+        {
+            throw new RequestDtoException("No entries found");
+        }
+
+        cat.Name = categoryDto.Name;
+        DataBase.Category.UpdateAsync(cat, cancellationToken);
     }
 
     public async Task<CategoryResponseDto> GetCategoryAsync(int id, CancellationToken cancellationToken)
     {
+        if (id < 0)
+        {
+            throw new RequestDtoException("Id must be 0 and higher");
+        }
+
         var cat = await DataBase.Category.GetByIdAsync(id, cancellationToken);
-        var catResponse = new CategoryResponseDto { Id = cat.Id, Name = cat.Name };
-        return catResponse;
+        if (cat == null)
+        {
+            throw new RequestDtoException("No entries found");
+        }
+
+        ArgumentNullException.ThrowIfNull(cat);
+        return _mapper.Map<CategoryResponseDto>(cat);
     }
 
     public async Task<IEnumerable<CategoryResponseDto>> GetCategoriesAsync(CancellationToken cancellationToken)
     {
         var cats = await DataBase.Category.GetAllAsync(cancellationToken);
-        var catsResponse = cats.Select(cat => new CategoryResponseDto() { Id = cat.Id, Name = cat.Name });
-        return catsResponse;
+
+        return _mapper.Map<IEnumerable<CategoryResponseDto>>(cats);
+    }
+
+    public async Task DeleteCategoryAsync(int id, CancellationToken cancellationToken)
+    {
+        if (id < 0)
+        {
+            throw new RequestDtoException("Id must be 0 and higher");
+        }
+
+        var cat = await DataBase.Category.GetByIdAsync(id, cancellationToken);
+        if (cat == null)
+        {
+            throw new RequestDtoException("No entries found");
+        }
+
+        DataBase.Category.DeleteAsync(cat, cancellationToken);
     }
 
     public static void CheckFields(CategoryRequestDto categoryDto, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(categoryDto);
-
         ArgumentNullException.ThrowIfNull(cancellationToken);
-
-        //var Name = categoryDto.Name;
         ArgumentException.ThrowIfNullOrWhiteSpace(categoryDto.Name);
-        /*
-        if (Name.Length > 32)
-        {
-            throw new RequestDtoException("Name exceeds 32 characters");
-        }
-
-        string pattern = @"^[A-Z][a-z\-_][0-9]*$";
-        if (!Regex.IsMatch(Name, pattern))
-            throw new RequestDtoException("Name can only contain latin characters,numbers, dashes and underscores");*/
     }
 }
