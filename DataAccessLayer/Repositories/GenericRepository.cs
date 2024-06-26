@@ -24,13 +24,13 @@ public class GenericRepository<TEntity> : IRepository<TEntity> where TEntity : c
         await Context.Set<TEntity>().AddAsync(entity, cancellationToken);
     }
 
-    public virtual async void UpdateAsync(TEntity entity, CancellationToken cancellationToken)
+    public virtual async Task UpdateAsync(TEntity entity, CancellationToken cancellationToken)
     {
         Context.Entry(entity).State = EntityState.Modified;
         await Context.SaveChangesAsync(cancellationToken);
     }
 
-    public virtual async void DeleteAsync(TEntity entity, CancellationToken cancellationToken)
+    public virtual async Task DeleteAsync(TEntity entity, CancellationToken cancellationToken)
     {
         Context.Set<TEntity>().Remove(entity);
         await Context.SaveChangesAsync(cancellationToken);
