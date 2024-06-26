@@ -19,7 +19,7 @@ public class UserRequestDtoValidator : AbstractValidator<UserRequestDto>
             .NotEmpty().WithMessage("{PropertyName} is empty!")
             .EmailAddress().WithMessage("Invalid {PropertyName} format!");
 
-        RuleFor(u => u.Password)
+        RuleFor(u => u.PasswordHash)
             .Cascade(CascadeMode.Stop)
             .NotEmpty().WithMessage("{PropertyName} is empty!");
     }
