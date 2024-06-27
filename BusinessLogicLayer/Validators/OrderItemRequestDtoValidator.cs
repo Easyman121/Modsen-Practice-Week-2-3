@@ -7,9 +7,11 @@ public class OrderItemRequestDtoValidator : AbstractValidator<OrderItemRequestDt
 {
     public OrderItemRequestDtoValidator()
     {
-        RuleFor(oi => oi.Product)
-            .NotNull().WithMessage("Product is required.")
-            .SetValidator(new ProductRequestDtoValidator());
+        RuleFor(oi => oi.OrderId)
+            .NotEmpty().WithMessage("{PropertyName} is required.");
+
+        RuleFor(oi => oi.ProductId)
+            .NotEmpty().WithMessage("{PropertyName} is required.");
 
         RuleFor(oi => oi.Count)
             .Cascade(CascadeMode.Stop)

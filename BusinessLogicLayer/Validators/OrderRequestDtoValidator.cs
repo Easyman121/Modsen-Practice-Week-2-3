@@ -11,10 +11,9 @@ public class OrderRequestDtoValidator : AbstractValidator<OrderRequestDto>
             .Cascade(CascadeMode.Stop)
             .NotEmpty().WithMessage("{PropertyName} is empty!")
             .LessThanOrEqualTo(DateTime.Now).WithMessage("{PropertyName} cannot be in the future")
-            .GreaterThanOrEqualTo(DateTime.Now.AddYears(-20))
-            .WithMessage("{PropertyName} cannot be earlier than 20 years ago");
+            .GreaterThanOrEqualTo(DateTime.Now.AddYears(-20)).WithMessage("{PropertyName} cannot be earlier than 20 years ago");
 
-        RuleFor(o => o.UserName)
-            .NotEmpty().WithMessage("UserName is required.");
+        RuleFor(o => o.UserId)
+            .NotEmpty().WithMessage("{PropertyName} is required.");
     }
 }
