@@ -33,6 +33,7 @@ public class AppContext(DbContextOptions options) : DbContext(options)
         var user = modelBuilder.Entity<User>();
         user.Property(t => t.Email).HasMaxLength(32);
         user.Property(t => t.UserName).HasMaxLength(16);
+        user.Property(t => t.PasswordHash).HasMaxLength(32);
         user.Ignore(t => t.Orders);
         user.HasIndex(t => t.Email).IsUnique();
         user.HasIndex(t => t.UserName).IsUnique();
