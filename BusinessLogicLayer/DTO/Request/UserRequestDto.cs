@@ -4,6 +4,6 @@ namespace BusinessLogicLayer.DTO.Request;
 public class UserRequestDto
 {
     public string UserName { get; set; }
-    public int PasswordHash { get; set; }
+    public byte[] PasswordHash { get; set; }
     public string Email { get; set; }
 }
