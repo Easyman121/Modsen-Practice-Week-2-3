@@ -1,4 +1,7 @@
 using BusinessLogicLayer.DTO;
+using BusinessLogicLayer.Validators;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using RepresentationLayer.ExceptionHandlers;
 
@@ -17,6 +20,10 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddAutoMapper(typeof(AppMappingProfile));
 
 builder.Services.AddControllers();
+
+builder.Services.AddValidatorsFromAssemblyContaining<UserRequestDtoValidator>();
+builder.Services.AddFluentValidationAutoValidation();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
