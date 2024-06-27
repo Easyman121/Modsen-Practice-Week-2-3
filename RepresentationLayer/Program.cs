@@ -1,8 +1,7 @@
 using BusinessLogicLayer.DTO;
 using BusinessLogicLayer.Validators;
-using FluentValidation.AspNetCore;
 using FluentValidation;
-
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
