@@ -19,3 +19,10 @@ public sealed class TestCustomException() : Exception("Came, saw, threw")
 //     "User": 10
 //   }
 // }
+
+// Expected result from GlobalExceptionHandler in Release (Production Environment) for this type is:
+// {
+//   "title": "Unavailable For Legal Reasons",
+//   "status": 451,
+//   "detail": "Came, saw, threw"
+// }
