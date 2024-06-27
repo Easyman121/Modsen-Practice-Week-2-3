@@ -1,3 +1,4 @@
+using BusinessLogicLayer.DTO;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +9,9 @@ var user = Environment.MachineName;
 var connectionString =
     $@"Data Source={user}\SQLEXPRESS;Database=ModsenPractice;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False";
 builder.Services.AddDbContext<DataAccessLayer.AppContext>(options => { options.UseSqlServer(connectionString); });
+
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddAutoMapper(typeof(AppMappingProfile));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
