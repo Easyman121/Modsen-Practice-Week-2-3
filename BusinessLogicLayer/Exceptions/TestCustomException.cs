@@ -8,7 +8,7 @@ public sealed class TestCustomException() : Exception("Came, saw, threw")
     public override Dictionary<string, int> Data { get; } = new() { ["banana"] = 5, ["user"] = 10 };
 }
 
-// Expected result from GlobalExceptionHandler for this type is:
+// Expected result from GlobalExceptionHandler in Debug (Development Environment) for this type is:
 // {
 //   "title": "Unavailable For Legal Reasons",
 //   "status": 451,
@@ -18,4 +18,10 @@ public sealed class TestCustomException() : Exception("Came, saw, threw")
 //     "Banana": 5,
 //     "User": 10
 //   }
+// }
+
+// Expected result from GlobalExceptionHandler in Release (Production Environment) for this type is:
+// {
+//   "title": "Unavailable For Legal Reasons",
+//   "status": 451,
 // }
