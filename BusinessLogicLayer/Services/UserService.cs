@@ -20,23 +20,43 @@ internal class UserService : IUserService
         var allUsers = await DataBase.User.GetAllAsync(cancellationToken);
         if (allUsers.Exists(c => c.UserName == userDto.UserName))
         {
-            throw new RequestDtoException("Username is already taken");
+            throw new NonUniqueException("Username is already taken");
         }
 
         if (allUsers.Exists(c => c.Email == userDto.Email))
         {
-            throw new RequestDtoException("Email is already registered");
+            throw new NonUniqueException("Email is already registered");
         }
 
-        await DataBase.User.InsertAsync(_mapper.Map<User>(userDto), cancellationToken);
+        var user = _mapper.Map<User>(userDto);
+
+        await DataBase.User.InsertAsync(user, cancellationToken);
     }
 
     public async Task UpdateUserAsync(int id, UserRequestDto userDto, CancellationToken cancellationToken)
     {
         CheckFields(userDto, cancellationToken);
         var user = await CheckAndGetUser(id, cancellationToken);
+        var allUsers = await DataBase.User.GetAllAsync(cancellationToken);
+        if (user.Email != userDto.Email)
+        {
+            if (allUsers.Exists(c => c.Email == userDto.Email))
+            {
+                throw new NonUniqueException("Email is already registered");
+            }
+        }
 
-        DataBase.User.UpdateAsync(_mapper.Map<User>(userDto), cancellationToken);
+        if (user.UserName != userDto.UserName)
+        {
+            if (allUsers.Exists(c => c.UserName == userDto.UserName))
+            {
+                throw new NonUniqueException("Username is already taken");
+            }
+        }
+
+        var userf = _mapper.Map<User>(userDto);
+        userf.Id = id;
+        DataBase.User.UpdateAsync(userf, cancellationToken);
     }
 
     public async Task DeleteUserAsync(int id, CancellationToken cancellationToken)
@@ -68,6 +88,7 @@ internal class UserService : IUserService
             throw new RequestDtoException("The list is empty");
         }
 
+
         return _mapper.Map<IEnumerable<UserResponseDto>>(users);
     }
 
@@ -75,8 +96,15 @@ internal class UserService : IUserService
     {
         ArgumentNullException.ThrowIfNull(userDto);
         ArgumentNullException.ThrowIfNull(cancellationToken);
-        ArgumentException.ThrowIfNullOrWhiteSpace(userDto.Email);
-        ArgumentException.ThrowIfNullOrWhiteSpace(userDto.UserName);
+        if (userDto.Email == null)
+        {
+            throw new RequestDtoException("No email provided");
+        }
+
+        if (userDto.UserName == null)
+        {
+            throw new RequestDtoException("No username provided");
+        }
     }
 
     private async Task<User> CheckAndGetUser(int id, CancellationToken cancellationToken)
