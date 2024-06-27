@@ -18,8 +18,8 @@ internal class UserService : IUserService
     {
         CheckFields(userDto, cancellationToken);
         var allUsers = await ServiceHelper.CheckAndGetEntitiesAsync(DataBase.User.GetAllAsync, cancellationToken);
-        NonUniqueException.EnsureUnique(allUsers, c => c.UserName == userDto.UserName && c.Email == userDto.Email);
-
+        NonUniqueException.EnsureUnique(allUsers, c => c.UserName == userDto.UserName, "Username is already taken");
+        NonUniqueException.EnsureUnique(allUsers, c => c.Email == userDto.Email, "Email is already taken");
         var user = _mapper.Map<User>(userDto);
 
         await DataBase.User.InsertAsync(user, cancellationToken);
@@ -35,18 +35,12 @@ internal class UserService : IUserService
 
         if (userOld.Email != userDto.Email)
         {
-            if (allUsers.Exists(c => c.Email == userDto.Email))
-            {
-                throw new NonUniqueException("This email is already registered");
-            }
+            NonUniqueException.EnsureUnique(allUsers, c => c.Email == userDto.Email, "Email is already taken");
         }
 
         if (userOld.UserName != userDto.UserName)
         {
-            if (allUsers.Exists(c => c.UserName == userDto.UserName))
-            {
-                throw new NonUniqueException("This username is already taken");
-            }
+            NonUniqueException.EnsureUnique(allUsers, c => c.UserName == userDto.UserName, "Username is already taken");
         }
 
         var userNew = _mapper.Map<User>(userDto);
