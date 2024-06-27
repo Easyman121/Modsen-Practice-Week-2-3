@@ -25,6 +25,7 @@ public class GlobalExceptionHandler(IHostEnvironment environment, ILogger<Global
         context.Response.StatusCode = exception switch
         {
             TestCustomException => 451,
+            NotImplementedException => 501,
             _ => 500
         };
 
