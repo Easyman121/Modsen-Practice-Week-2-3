@@ -17,16 +17,8 @@ internal class UserService : IUserService
     public async Task InsertUserAsync(UserRequestDto userDto, CancellationToken cancellationToken)
     {
         CheckFields(userDto, cancellationToken);
-        var allUsers = await CheckAndGetUsersAsync(cancellationToken);
-        if (allUsers.Exists(c => c.UserName == userDto.UserName))
-        {
-            throw new NonUniqueException("Username is already taken");
-        }
-
-        if (allUsers.Exists(c => c.Email == userDto.Email))
-        {
-            throw new NonUniqueException("Email is already registered");
-        }
+        var allUsers = await ServiceHelper.CheckAndGetEntitiesAsync(DataBase.User.GetAllAsync, cancellationToken);
+        NonUniqueException.EnsureUnique(allUsers, c => c.UserName == userDto.UserName && c.Email == userDto.Email);
 
         var user = _mapper.Map<User>(userDto);
 
@@ -36,9 +28,10 @@ internal class UserService : IUserService
     public async Task UpdateUserAsync(int id, UserRequestDto userDto, CancellationToken cancellationToken)
     {
         CheckFields(userDto, cancellationToken);
-        var userOld = await CheckAndGetUserAsync(id, cancellationToken);
+        var userOld =
+            await ServiceHelper.CheckAndGetEntityAsync(DataBase.User.GetByIdAsync, id, cancellationToken);
 
-        var allUsers = await CheckAndGetUsersAsync(cancellationToken);
+        var allUsers = await ServiceHelper.CheckAndGetEntitiesAsync(DataBase.User.GetAllAsync, cancellationToken);
 
         if (userOld.Email != userDto.Email)
         {
@@ -58,24 +51,24 @@ internal class UserService : IUserService
 
         var userNew = _mapper.Map<User>(userDto);
         userNew.Id = id;
-        DataBase.User.UpdateAsync(userNew, cancellationToken);
+        await DataBase.User.UpdateAsync(userNew, cancellationToken);
     }
 
     public async Task DeleteUserAsync(int id, CancellationToken cancellationToken)
     {
-        var user = await CheckAndGetUserAsync(id, cancellationToken);
-        DataBase.User.DeleteAsync(user, cancellationToken);
+        var user = await ServiceHelper.CheckAndGetEntityAsync(DataBase.User.GetByIdAsync, id, cancellationToken);
+        await DataBase.User.DeleteAsync(user, cancellationToken);
     }
 
     public async Task<UserResponseDto> GetUserAsync(int id, CancellationToken cancellationToken)
     {
-        var user = await CheckAndGetUserAsync(id, cancellationToken);
+        var user = await ServiceHelper.CheckAndGetEntityAsync(DataBase.User.GetByIdAsync, id, cancellationToken);
         return _mapper.Map<UserResponseDto>(user);
     }
 
     public async Task<IEnumerable<UserResponseDto>> GetUsersAsync(CancellationToken cancellationToken)
     {
-        var users = await CheckAndGetUsersAsync(cancellationToken);
+        var users = await ServiceHelper.CheckAndGetEntitiesAsync(DataBase.User.GetAllAsync, cancellationToken);
 
         return _mapper.Map<IEnumerable<UserResponseDto>>(users);
     }
@@ -86,41 +79,5 @@ internal class UserService : IUserService
         ArgumentNullException.ThrowIfNull(cancellationToken);
         RequestDtoException.ThrowIfNullOrWhiteSpace(userDto.Email);
         RequestDtoException.ThrowIfNullOrWhiteSpace(userDto.UserName);
-    }
-
-    private async Task<User> CheckAndGetUserAsync(int id, CancellationToken cancellationToken)
-    {
-        if (id < 0)
-        {
-            throw new ArgumentException("Id is lower than 0");
-        }
-
-        var user = await DataBase.User.GetByIdAsync(id, cancellationToken);
-        if (user == null)
-        {
-            throw new RequestDtoException("No user entries found");
-        }
-
-        return user;
-    }
-
-    private async Task<List<User>> CheckAndGetUsersAsync(CancellationToken cancellationToken)
-    {
-        var users = await DataBase.User.GetAllAsync(cancellationToken);
-
-        foreach (var user in users)
-        {
-            if (user == null)
-            {
-                throw new RequestDtoException("The entry is empty");
-            }
-        }
-
-        if (users == null)
-        {
-            throw new RequestDtoException("The list is empty");
-        }
-
-        return users;
     }
 }
