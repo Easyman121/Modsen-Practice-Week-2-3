@@ -17,23 +17,22 @@ public class GlobalExceptionHandler(IHostEnvironment environment, ILogger<Global
         Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
     };
 
-    public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception,
+    public async ValueTask<bool> TryHandleAsync(HttpContext context, Exception exception,
         CancellationToken cancellationToken)
     {
         logger.LogError(exception, exception.Message);
 
-        httpContext.Response.StatusCode = exception switch
+        context.Response.StatusCode = exception switch
         {
             TestCustomException => 451,
-            _ => httpContext.Response.StatusCode
+            _ => 500
         };
 
-        var problem = CreateProblemDetails(httpContext, exception);
+        var problem = CreateProblemDetails(context, exception);
         var json = ToJson(problem);
-        const string contentType = "application/problem+json";
-        httpContext.Response.ContentType = contentType;
+        context.Response.ContentType = "application/problem+json";
 
-        await httpContext.Response.WriteAsync(json, cancellationToken);
+        await context.Response.WriteAsync(json, cancellationToken);
 
         return true;
     }
