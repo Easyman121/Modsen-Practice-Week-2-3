@@ -17,7 +17,7 @@ internal class CategoryService : ICategoryService
     public async Task InsertCategoryAsync(CategoryRequestDto categoryDto, CancellationToken cancellationToken)
     {
         CheckFields(categoryDto, cancellationToken);
-        List<Category> allCats = await DataBase.Category.GetAllAsync(cancellationToken);
+        var allCats = await DataBase.Category.GetAllAsync(cancellationToken);
         if (allCats.Exists(c => c.Name == categoryDto.Name))
         {
             throw new RequestDtoException("The name is not unique");
@@ -57,13 +57,25 @@ internal class CategoryService : ICategoryService
             throw new RequestDtoException("No entries found");
         }
 
-        ArgumentNullException.ThrowIfNull(cat);
         return _mapper.Map<CategoryResponseDto>(cat);
     }
 
     public async Task<IEnumerable<CategoryResponseDto>> GetCategoriesAsync(CancellationToken cancellationToken)
     {
         var cats = await DataBase.Category.GetAllAsync(cancellationToken);
+
+        foreach (var cat in cats)
+        {
+            if (cat == null)
+            {
+                throw new RequestDtoException("The entry is empty");
+            }
+        }
+
+        if (cats == null)
+        {
+            throw new RequestDtoException("The list is empty");
+        }
 
         return _mapper.Map<IEnumerable<CategoryResponseDto>>(cats);
     }
