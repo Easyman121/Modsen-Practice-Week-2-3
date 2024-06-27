@@ -67,6 +67,31 @@ internal class UserService : IUserService
         return _mapper.Map<IEnumerable<UserResponseDto>>(users);
     }
 
+    public async Task<IEnumerable<OrderResponseDto>> GetOrdersAsync(int userId, CancellationToken cancellationToken)
+    {
+        var orders = await CheckAndGetOrdersByIdAsync(userId, cancellationToken);
+        return _mapper.Map<IEnumerable<OrderResponseDto>>(orders);
+    }
+
+    public async Task<OrderResponseDto> GetOrderAsync(int orderId, CancellationToken cancellationToken)
+    {
+        var order = await ServiceHelper.CheckAndGetEntityAsync(DataBase.Order.GetOrderDetailsAsync, orderId,
+            cancellationToken);
+        return _mapper.Map<OrderResponseDto>(order);
+    }
+
+    private async Task<IEnumerable<Order>> CheckAndGetOrdersByIdAsync(int id, CancellationToken cancellationToken)
+    {
+        var orders = await DataBase.Order.GetOrdersByUserAsync(id, cancellationToken);
+
+        if (orders.Count == 0)
+        {
+            throw new RequestDtoException("The list is empty");
+        }
+
+        return orders;
+    }
+
     private static void CheckFields(UserRequestDto userDto, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(userDto);
