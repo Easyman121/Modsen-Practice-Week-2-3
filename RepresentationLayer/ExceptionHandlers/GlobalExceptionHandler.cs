@@ -49,7 +49,8 @@ public class GlobalExceptionHandler(IHostEnvironment environment, ILogger<Global
         var problemDetails = new ProblemDetails
         {
             Status = statusCode,
-            Title = reasonPhrase
+            Title = reasonPhrase,
+            Detail = exception.Message
         };
 
         if (!environment.IsDevelopment())
@@ -57,7 +58,6 @@ public class GlobalExceptionHandler(IHostEnvironment environment, ILogger<Global
             return problemDetails;
         }
 
-        problemDetails.Detail = exception.Message;
         problemDetails.Extensions["traceId"] = context.TraceIdentifier;
         problemDetails.Extensions["data"] = exception.Data;
 

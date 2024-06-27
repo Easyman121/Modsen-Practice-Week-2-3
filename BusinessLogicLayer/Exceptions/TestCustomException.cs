@@ -24,4 +24,5 @@ public sealed class TestCustomException() : Exception("Came, saw, threw")
 // {
 //   "title": "Unavailable For Legal Reasons",
 //   "status": 451,
+//   "detail": "Came, saw, threw"
 // }
