@@ -27,4 +27,12 @@ public class RequestDtoException : Exception
             throw new RequestDtoException($"The value {paramName}={value} is less than {other}");
         }
     }
+
+    public static void ThrowIfNull(object value, [CallerArgumentExpression(nameof(value))] string? paramName = null)
+    {
+        if (value == null)
+        {
+            throw new RequestDtoException($"{paramName} is null");
+        }
+    }
 }

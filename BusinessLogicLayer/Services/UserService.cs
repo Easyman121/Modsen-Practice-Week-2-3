@@ -73,5 +73,6 @@ internal class UserService : IUserService
         ArgumentNullException.ThrowIfNull(cancellationToken);
         RequestDtoException.ThrowIfNullOrWhiteSpace(userDto.Email);
         RequestDtoException.ThrowIfNullOrWhiteSpace(userDto.UserName);
+        RequestDtoException.ThrowIfNull(userDto.PasswordHash);
     }
 }
