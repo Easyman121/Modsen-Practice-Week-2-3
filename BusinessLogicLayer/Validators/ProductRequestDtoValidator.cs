@@ -28,9 +28,6 @@ public class ProductRequestDtoValidator : AbstractValidator<ProductRequestDto>
             .Cascade(CascadeMode.Stop)
             .GreaterThan(0).WithMessage("{PropertyName} should be greater than 0")
             .LessThanOrEqualTo(1000000).WithMessage("{PropertyName} should be less than or equal to 1,000,000");
-
-        RuleFor(p => p.CategoryName)
-            .NotEmpty().WithMessage("Category name is required.");
     }
 
     public static bool ContainsForbiddenWords(string description)
