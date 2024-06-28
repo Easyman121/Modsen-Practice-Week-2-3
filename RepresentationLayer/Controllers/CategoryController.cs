@@ -1,34 +1,37 @@
 ﻿using BusinessLogicLayer.DTO.Request;
 using BusinessLogicLayer.DTO.Response;
 using BusinessLogicLayer.Services.Interfaces;
+using DataAccessLayer.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace RepresentationLayer.Controllers;
 
 [ApiController]
 [Route("[controller]/[action]")]
-public class CategoryController(ILogger<CategoryController> logger, ICategoryService category, CancellationToken token)
+public class CategoryController(ILogger<CategoryController> logger, ICategoryService categoryService)
     : ControllerBase
 {
     [HttpGet(Name = "GetCategory")]
-    public async Task<CategoryResponseDto> GetCategory(int id) =>
-        await category.GetCategoryAsync(id, token);
+    public async Task<CategoryResponseDto?> GetCategoryAsync(int id, CancellationToken token) =>
+        await categoryService.GetCategoryAsync(id, token);
 
     [HttpGet(Name = "GetCategories")]
-    public async Task<IEnumerable<CategoryResponseDto>> GetCategories() =>
-        await category.GetCategoriesAsync(token);
+    public async Task<IEnumerable<CategoryResponseDto>> GetCategoriesAsync(CancellationToken token) =>
+        await categoryService.GetCategoriesAsync(token);
+
+    [HttpGet(Name = "GetProducts")]
+    public async Task<IEnumerable<Product>> GetProductsAsync(int id, CancellationToken token) =>
+        await categoryService.GetProductsAsync(id, token);
 
     [HttpPost(Name = "InsertCategory")]
-    public async Task<int> Insert(CategoryRequestDto categoryDto) =>
-        await category.SetCategoryAsync(categoryDto, token);
+    public async Task<int> InsertAsync(CategoryRequestDto categoryDto, CancellationToken token) =>
+        await categoryService.InsertCategoryAsync(categoryDto, token);
 
     [HttpPost(Name = "UpdateCategory")]
-    public async Task Update(int id, CategoryRequestDto categoryDto)
-    {
-        throw new NotImplementedException();
-        return;
-    }
+    public async Task UpdateAsync(int id, CategoryRequestDto categoryDto, CancellationToken token) =>
+        await categoryService.UpdateCategoryAsync(id, categoryDto, token);
 
     [HttpDelete(Name = "DeleteCategory")]
-    public async Task Delete(int id) => throw new NotImplementedException();
+    public async Task DeleteAsync(int id, CancellationToken token) =>
+        await categoryService.DeleteCategoryAsync(id, token);
 }

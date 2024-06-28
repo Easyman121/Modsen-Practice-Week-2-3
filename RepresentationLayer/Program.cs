@@ -1,5 +1,9 @@
 using BusinessLogicLayer.DTO;
+using BusinessLogicLayer.Services;
+using BusinessLogicLayer.Services.Interfaces;
 using BusinessLogicLayer.Validators;
+using DataAccessLayer.Repositories;
+using DataAccessLayer.Repositories.Interfaces;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +19,13 @@ builder.Services.AddDbContext<DataAccessLayer.AppContext>(options => { options.U
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddAutoMapper(typeof(AppMappingProfile));
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IOrderItemService, OrderItemService>();
 
 builder.Services.AddControllers();
 
