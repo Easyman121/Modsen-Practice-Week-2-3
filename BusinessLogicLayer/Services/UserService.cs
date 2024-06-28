@@ -31,25 +31,26 @@ public class UserService(IUnitOfWork uow) : IUserService
     public async Task UpdateUserAsync(int id, UserRequestDto userDto, CancellationToken cancellationToken)
     {
         CheckFieldsAndToken(userDto, cancellationToken);
-        var userOld =
+        var user =
             await ServiceHelper.CheckAndGetEntityAsync(uow.User.GetByIdAsync, id, cancellationToken);
 
         var allUsers = await ServiceHelper.CheckAndGetEntitiesAsync(uow.User.GetAllAsync, cancellationToken);
-        if (userOld.Email != userDto.Email)
+        if (user.Email != userDto.Email)
         {
             NonUniqueException.EnsureUnique(allUsers, c => c.Email == userDto.Email, "Email is already taken");
         }
 
-        if (userOld.UserName != userDto.UserName)
+        if (user.UserName != userDto.UserName)
         {
             NonUniqueException.EnsureUnique(allUsers, c => c.UserName == userDto.UserName,
                 "Username is already taken");
         }
 
-        var userNew = _mapper.Map<User>(userDto);
-        userNew.Id = id;
+        user.Email = userDto.Email;
+        user.UserName = userDto.UserName;
+        user.PasswordHash = user.PasswordHash;
 
-        await uow.User.UpdateAsync(userNew, cancellationToken);
+        await uow.User.UpdateAsync(user, cancellationToken);
     }
 
     public async Task DeleteUserAsync(int id, CancellationToken cancellationToken)

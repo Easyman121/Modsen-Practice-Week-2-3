@@ -24,33 +24,29 @@ public class ProductService(IUnitOfWork uow) : IProductService
         }
 
         var prod = _mapper.Map<Product>(productDto);
-        prod.Category =
-            await ServiceHelper.CheckAndGetEntityAsync(uow.Category.GetByIdAsync, prod.CategoryId, cancellationToken);
         return await uow.Product.InsertAsync(prod, cancellationToken);
     }
 
     public async Task UpdateProductAsync(int id, ProductRequestDto productDto, CancellationToken cancellationToken)
     {
         CheckFieldsAndToken(productDto, cancellationToken);
-        var prodOld =
+        var prod =
             await ServiceHelper.CheckAndGetEntityAsync<Product>(uow.Product.GetByIdAsync, id, cancellationToken);
 
         var allProds = await ServiceHelper.CheckAndGetEntitiesAsync(uow.Product.GetAllAsync, cancellationToken);
 
-        if (prodOld.Name != productDto.Name)
+        if (prod.Name != productDto.Name)
         {
             NonUniqueException.EnsureUnique(allProds, c => c.Name == productDto.Name,
                 $"Product name {productDto.Name} is not unique");
         }
 
-        var prodNew = _mapper.Map<Product>(productDto);
-        prodNew.Id = id;
-        prodNew.Category =
-            prodNew.CategoryId == prodOld.CategoryId
-                ? await ServiceHelper.CheckAndGetEntityAsync(uow.Category.GetByIdAsync, prodNew.CategoryId,
-                    cancellationToken)
-                : prodOld.Category;
-        await uow.Product.UpdateAsync(prodNew, cancellationToken);
+        prod.Name = productDto.Name;
+        prod.Price = productDto.Price;
+        prod.Description = productDto.Description;
+        prod.CategoryId = productDto.CategoryId;
+
+        await uow.Product.UpdateAsync(prod, cancellationToken);
     }
 
     public async Task<ProductResponseDto> GetProductAsync(int id, CancellationToken cancellationToken)
