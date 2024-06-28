@@ -24,6 +24,8 @@ public class GlobalExceptionHandler(IHostEnvironment environment, ILogger<Global
 
         context.Response.StatusCode = exception switch
         {
+            RequestDtoException => 400,
+            NonUniqueException => 409,
             TestCustomException => 451,
             NotImplementedException => 501,
             _ => 500
