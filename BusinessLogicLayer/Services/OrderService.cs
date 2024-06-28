@@ -29,21 +29,14 @@ public class OrderService(IUnitOfWork DataBase) : IOrderService
     public async Task<OrderResponseDto> GetOrderAsync(int id, CancellationToken cancellationToken)
     {
         var order = await ServiceHelper.CheckAndGetEntityAsync(DataBase.Order.GetOrderDetailsAsync, id,
-                cancellationToken); /*
-            var response = _mapper.Map<OrderResponseDto>(order);
-            response.Items = _mapper.Map<List<OrderItemResponseDto>>(order.OrderItems);*/
+            cancellationToken);
         return _mapper.Map<OrderResponseDto>(order);
     }
 
     public async Task<IEnumerable<OrderResponseDto>> GetOrdersAsync(CancellationToken cancellationToken)
     {
         var orders = await ServiceHelper.CheckAndGetEntitiesAsync(DataBase.Order.GetAllAsync, cancellationToken);
-        /*
-    var orderResponse = _mapper.Map<IEnumerable<OrderResponseDto>>(orders);
-    foreach (var orderresp in orderResponse)
-    {
-        orderresp.Items=
-    }*/
+
         return _mapper.Map<IEnumerable<OrderResponseDto>>(orders);
     }
 
