@@ -17,7 +17,7 @@ public class OrderController(ILogger<OrderController> logger, IOrderService orde
     public async Task<IEnumerable<OrderResponseDto>> GetOrdersAsync(CancellationToken token) =>
         await orderService.GetOrdersAsync(token);
 
-    [HttpGet(Name = "GetUser")]
+    [HttpGet(Name = "GetOrderUser")]
     public async Task<UserResponseDto> GetUserAsync(int id, CancellationToken token) =>
         await orderService.GetUserAsync(id, token);
 

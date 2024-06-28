@@ -1,7 +1,6 @@
 ﻿using BusinessLogicLayer.DTO.Request;
 using BusinessLogicLayer.DTO.Response;
 using BusinessLogicLayer.Services.Interfaces;
-using DataAccessLayer.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace RepresentationLayer.Controllers;
@@ -19,8 +18,8 @@ public class CategoryController(ILogger<CategoryController> logger, ICategorySer
     public async Task<IEnumerable<CategoryResponseDto>> GetCategoriesAsync(CancellationToken token) =>
         await categoryService.GetCategoriesAsync(token);
 
-    [HttpGet(Name = "GetProducts")]
-    public async Task<IEnumerable<Product>> GetProductsAsync(int id, CancellationToken token) =>
+    [HttpGet(Name = "GetCategoryProducts")]
+    public async Task<IEnumerable<ProductResponseDto>> GetProductsAsync(int id, CancellationToken token) =>
         await categoryService.GetProductsAsync(id, token);
 
     [HttpPost(Name = "InsertCategory")]

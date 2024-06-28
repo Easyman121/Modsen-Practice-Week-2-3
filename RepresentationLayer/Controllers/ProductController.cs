@@ -17,7 +17,7 @@ public class ProductController(ILogger<ProductController> logger, IProductServic
     public async Task<IEnumerable<ProductResponseDto>> GetProductsAsync(CancellationToken token) =>
         await productService.GetProductsAsync(token);
 
-    [HttpGet(Name = "GetCategory")]
+    [HttpGet(Name = "GetProductCategory")]
     public async Task<CategoryResponseDto> GetCategoryAsync(int id, CancellationToken token) =>
         await productService.GetCategoryAsync(id, token);
 

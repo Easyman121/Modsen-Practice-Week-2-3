@@ -18,11 +18,11 @@ public class OrderItemController(ILogger<OrderItemController> logger, IOrderItem
     public async Task<IEnumerable<OrderItemResponseDto>> GetOrderItemsAsync(CancellationToken token) =>
         await orderItemService.GetOrderItemsAsync(token);
 
-    [HttpGet(Name = "GetOrder")]
+    [HttpGet(Name = "GetOrderItemOrder")]
     public async Task<OrderResponseDto> GetOrderAsync(int id, CancellationToken token) =>
         await orderItemService.GetOrderAsync(id, token);
 
-    [HttpGet(Name = "GetProduct")]
+    [HttpGet(Name = "GetOrderItemProduct")]
     public async Task<ProductResponseDto> GetProductAsync(int id, CancellationToken token) =>
         await orderItemService.GetProductAsync(id, token);
 
