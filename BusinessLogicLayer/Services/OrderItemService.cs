@@ -9,81 +9,97 @@ using DataAccessLayer.Repositories.Interfaces;
 
 namespace BusinessLogicLayer.Services;
 
-public class OrderItemService(IUnitOfWork DataBase) : IOrderItemService
+public class OrderItemService(IUnitOfWork uow) : IOrderItemService
 {
-    private IMapper _mapper = new MapperConfiguration(x => x.AddProfile<AppMappingProfile>()).CreateMapper();
+    private readonly IMapper _mapper = new MapperConfiguration(x => x.AddProfile<AppMappingProfile>()).CreateMapper();
 
     public async Task<int> InsertOrderItemAsync(OrderItemRequestDto orderItemDto, CancellationToken cancellationToken)
     {
-        CheckFields(orderItemDto, cancellationToken);
-        var allOrderItems = await ServiceHelper.GetEntitiesAsync(DataBase.OrderItem.GetAllAsync, cancellationToken);
-        NonUniqueException.EnsureUnique(allOrderItems,
-            c => c.OrderId == orderItemDto.OrderId && c.ProductId == orderItemDto.ProductId,
-            "Same order item requested");
+        CheckFieldsAndToken(orderItemDto, cancellationToken);
+        var allOrderItems = await ServiceHelper.GetEntitiesAsync(uow.OrderItem.GetAllAsync, cancellationToken);
+        if (allOrderItems.Count > 0)
+        {
+            NonUniqueException.EnsureUnique(allOrderItems,
+                c => c.OrderId == orderItemDto.OrderId && c.ProductId == orderItemDto.ProductId,
+                "Order item is not unique");
+        }
+
         var orderItem = _mapper.Map<OrderItem>(orderItemDto);
-        return await DataBase.OrderItem.InsertAsync(orderItem, cancellationToken);
+        orderItem.Order =
+            await ServiceHelper.CheckAndGetEntityAsync(uow.Order.GetOrderDetailsAsync, orderItem.OrderId,
+                cancellationToken);
+        orderItem.Product =
+            await ServiceHelper.CheckAndGetEntityAsync(uow.Product.GetByIdAsync, orderItem.ProductId,
+                cancellationToken);
+        return await uow.OrderItem.InsertAsync(orderItem, cancellationToken);
     }
 
     public async Task UpdateOrderItemAsync(int id, OrderItemRequestDto orderItemDto,
         CancellationToken cancellationToken)
     {
-        CheckFields(orderItemDto, cancellationToken);
+        CheckFieldsAndToken(orderItemDto, cancellationToken);
         var oldOrderItem =
-            await ServiceHelper.CheckAndGetEntityAsync(DataBase.OrderItem.GetByIdAsync, id, cancellationToken);
-        var allOrderItems = await ServiceHelper.GetEntitiesAsync(DataBase.OrderItem.GetAllAsync, cancellationToken);
+            await ServiceHelper.CheckAndGetEntityAsync(uow.OrderItem.GetByIdAsync, id, cancellationToken);
+        var allOrderItems = await ServiceHelper.CheckAndGetEntitiesAsync(uow.OrderItem.GetAllAsync, cancellationToken);
         if (oldOrderItem.OrderId == orderItemDto.OrderId && oldOrderItem.ProductId == orderItemDto.ProductId)
         {
             NonUniqueException.EnsureUnique(allOrderItems,
                 c => c.OrderId == orderItemDto.OrderId && c.ProductId == orderItemDto.ProductId,
-                "Same order item requested");
+                "Order item is not unique");
         }
 
         var newOrderItem = _mapper.Map<OrderItem>(orderItemDto);
         newOrderItem.Id = oldOrderItem.Id;
-        await DataBase.OrderItem.UpdateAsync(newOrderItem, cancellationToken);
+        newOrderItem.Product =
+            await ServiceHelper.CheckAndGetEntityAsync(uow.Product.GetByIdAsync, newOrderItem.ProductId,
+                cancellationToken);
+        newOrderItem.Order =
+            await ServiceHelper.CheckAndGetEntityAsync(uow.Order.GetOrderDetailsAsync, newOrderItem.OrderId,
+                cancellationToken);
+        await uow.OrderItem.UpdateAsync(newOrderItem, cancellationToken);
     }
 
 
     public async Task DeleteOrderItemAsync(int id, CancellationToken cancellationToken)
     {
         var orderItem =
-            await ServiceHelper.CheckAndGetEntityAsync(DataBase.OrderItem.GetByIdAsync, id, cancellationToken);
-        await DataBase.OrderItem.DeleteAsync(orderItem, cancellationToken);
+            await ServiceHelper.CheckAndGetEntityAsync(uow.OrderItem.GetByIdAsync, id, cancellationToken);
+        await uow.OrderItem.DeleteAsync(orderItem, cancellationToken);
     }
 
     public async Task<OrderItemResponseDto> GetOrderItemAsync(int id, CancellationToken cancellationToken)
     {
         var orderItem =
-            await ServiceHelper.CheckAndGetEntityAsync(DataBase.OrderItem.GetByIdAsync, id, cancellationToken);
+            await ServiceHelper.CheckAndGetEntityAsync(uow.OrderItem.GetByIdAsync, id, cancellationToken);
         return _mapper.Map<OrderItemResponseDto>(orderItem);
     }
 
     public async Task<IEnumerable<OrderItemResponseDto>> GetOrderItemsAsync(CancellationToken cancellationToken)
     {
         var orderItems =
-            await ServiceHelper.CheckAndGetEntitiesAsync(DataBase.OrderItem.GetAllAsync, cancellationToken);
+            await ServiceHelper.CheckAndGetEntitiesAsync(uow.OrderItem.GetAllAsync, cancellationToken);
         return _mapper.Map<IEnumerable<OrderItemResponseDto>>(orderItems);
     }
 
     public async Task<OrderResponseDto> GetOrderAsync(int orderItemId, CancellationToken cancellationToken)
     {
         var orderItem =
-            await ServiceHelper.CheckAndGetEntityAsync(DataBase.OrderItem.GetByIdAsync, orderItemId, cancellationToken);
+            await ServiceHelper.CheckAndGetEntityAsync(uow.OrderItem.GetByIdAsync, orderItemId, cancellationToken);
         return _mapper.Map<OrderResponseDto>(orderItem.Order);
     }
 
     public async Task<ProductResponseDto> GetProductAsync(int orderItemId, CancellationToken cancellationToken)
     {
         var orderItem =
-            await ServiceHelper.CheckAndGetEntityAsync(DataBase.OrderItem.GetByIdAsync, orderItemId, cancellationToken);
+            await ServiceHelper.CheckAndGetEntityAsync(uow.OrderItem.GetByIdAsync, orderItemId, cancellationToken);
         return _mapper.Map<ProductResponseDto>(orderItem.Product);
     }
 
-    private static void CheckFields(OrderItemRequestDto orderItemDto, CancellationToken cancellationToken)
+    private static void CheckFieldsAndToken(OrderItemRequestDto orderItemDto, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(orderItemDto);
         ArgumentNullException.ThrowIfNull(cancellationToken);
-        RequestDtoException.ThrowIfLessThan(orderItemDto.OrderId, 0);
-        RequestDtoException.ThrowIfLessThan(orderItemDto.ProductId, 0);
+        RequestDtoException.ThrowIfLessThan(orderItemDto.OrderId, 1);
+        RequestDtoException.ThrowIfLessThan(orderItemDto.ProductId, 1);
     }
 }
