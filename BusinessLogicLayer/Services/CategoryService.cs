@@ -9,70 +9,69 @@ using DataAccessLayer.Repositories.Interfaces;
 
 namespace BusinessLogicLayer.Services;
 
-public class CategoryService(IUnitOfWork DataBase) : ICategoryService
+public class CategoryService(IUnitOfWork uow) : ICategoryService
 {
-    private IMapper _mapper = new MapperConfiguration(x => x.AddProfile<AppMappingProfile>()).CreateMapper();
+    private readonly IMapper _mapper = new MapperConfiguration(x => x.AddProfile<AppMappingProfile>()).CreateMapper();
 
     public async Task<int> InsertCategoryAsync(CategoryRequestDto categoryDto, CancellationToken cancellationToken)
     {
-        CheckFields(categoryDto, cancellationToken);
-        var allCats = await ServiceHelper.GetEntitiesAsync(DataBase.Category.GetAllAsync, cancellationToken);
+        CheckFieldsAndToken(categoryDto, cancellationToken);
+        var allCats = await ServiceHelper.GetEntitiesAsync(uow.Category.GetAllAsync, cancellationToken);
 
-        if (allCats.Count != 0)
+        if (allCats.Count > 0)
         {
             NonUniqueException.EnsureUnique(allCats, c => c.Name == categoryDto.Name,
                 $"Category name {categoryDto.Name} is not unique");
         }
 
-        return await DataBase.Category.InsertAsync(_mapper.Map<Category>(categoryDto), cancellationToken);
+        var cat = _mapper.Map<Category>(categoryDto);
+        return await uow.Category.InsertAsync(cat, cancellationToken);
     }
 
     public async Task UpdateCategoryAsync(int id, CategoryRequestDto categoryDto, CancellationToken cancellationToken)
     {
-        CheckFields(categoryDto, cancellationToken);
+        CheckFieldsAndToken(categoryDto, cancellationToken);
 
-        var allCats = await ServiceHelper.CheckAndGetEntitiesAsync(DataBase.Category.GetAllAsync, cancellationToken);
-
+        var allCats = await ServiceHelper.CheckAndGetEntitiesAsync(uow.Category.GetAllAsync, cancellationToken);
         NonUniqueException.EnsureUnique(allCats, c => c.Name == categoryDto.Name,
             $"Category name {categoryDto.Name} is not unique");
 
-        var cat = await ServiceHelper.CheckAndGetEntityAsync(DataBase.Category.GetByIdAsync, id, cancellationToken);
+        var cat = await ServiceHelper.CheckAndGetEntityAsync(uow.Category.GetByIdAsync, id, cancellationToken);
         cat.Name = categoryDto.Name;
-
-        await DataBase.Category.UpdateAsync(cat, cancellationToken);
+        await uow.Category.UpdateAsync(cat, cancellationToken);
     }
 
     public async Task<CategoryResponseDto> GetCategoryAsync(int id, CancellationToken cancellationToken)
     {
-        var cat = await ServiceHelper.CheckAndGetEntityAsync(DataBase.Category.GetByIdAsync, id, cancellationToken);
+        var cat = await ServiceHelper.CheckAndGetEntityAsync(uow.Category.GetByIdAsync, id, cancellationToken);
 
         return _mapper.Map<CategoryResponseDto>(cat);
     }
 
     public async Task<IEnumerable<CategoryResponseDto>> GetCategoriesAsync(CancellationToken cancellationToken)
     {
-        var cats = await ServiceHelper.GetEntitiesAsync(DataBase.Category.GetAllAsync, cancellationToken);
+        var cats = await ServiceHelper.GetEntitiesAsync(uow.Category.GetAllAsync, cancellationToken);
 
         return _mapper.Map<IEnumerable<CategoryResponseDto>>(cats);
     }
 
     public async Task DeleteCategoryAsync(int id, CancellationToken cancellationToken)
     {
-        var cat = await ServiceHelper.CheckAndGetEntityAsync(DataBase.Category.GetByIdAsync, id, cancellationToken);
+        var cat = await ServiceHelper.CheckAndGetEntityAsync(uow.Category.GetByIdAsync, id, cancellationToken);
 
-        await DataBase.Category.DeleteAsync(cat, cancellationToken);
+        await uow.Category.DeleteAsync(cat, cancellationToken);
     }
 
     public async Task<IEnumerable<ProductResponseDto>> GetProductsAsync(int categoryId,
         CancellationToken cancellationToken)
     {
-        var cat = await ServiceHelper.CheckAndGetEntityAsync(DataBase.Category.GetByIdAsync, categoryId,
+        var cat = await ServiceHelper.CheckAndGetEntityAsync(uow.Category.GetByIdAsync, categoryId,
             cancellationToken);
 
         return _mapper.Map<IEnumerable<ProductResponseDto>>(cat.Products);
     }
 
-    public static void CheckFields(CategoryRequestDto categoryDto, CancellationToken cancellationToken)
+    public static void CheckFieldsAndToken(CategoryRequestDto categoryDto, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(categoryDto);
         ArgumentNullException.ThrowIfNull(cancellationToken);
