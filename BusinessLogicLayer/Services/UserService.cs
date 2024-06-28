@@ -9,7 +9,7 @@ using DataAccessLayer.Repositories.Interfaces;
 
 namespace BusinessLogicLayer.Services;
 
-internal class UserService : IUserService
+public class UserService : IUserService
 {
     private IUnitOfWork DataBase { get; set; }
     private IMapper _mapper = new MapperConfiguration(x => x.AddProfile<AppMappingProfile>()).CreateMapper();
@@ -71,13 +71,6 @@ internal class UserService : IUserService
     {
         var orders = await CheckAndGetOrdersByIdAsync(userId, cancellationToken);
         return _mapper.Map<IEnumerable<OrderResponseDto>>(orders);
-    }
-
-    public async Task<OrderResponseDto> GetOrderAsync(int orderId, CancellationToken cancellationToken)
-    {
-        var order = await ServiceHelper.CheckAndGetEntityAsync(DataBase.Order.GetOrderDetailsAsync, orderId,
-            cancellationToken);
-        return _mapper.Map<OrderResponseDto>(order);
     }
 
     private async Task<IEnumerable<Order>> CheckAndGetOrdersByIdAsync(int id, CancellationToken cancellationToken)
