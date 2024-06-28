@@ -9,7 +9,7 @@ public class AppContext : DbContext
     {
         _ = Category!.Include(t => t.Products).ToList();
         _ = Order!.Include(t => t.OrderItems).ToList();
-        _ = User!.Include(t => t.Orders);
+        _ = User!.Include(t => t.Orders).ToList();
     }
 
     public DbSet<Category> Category { get; set; }
