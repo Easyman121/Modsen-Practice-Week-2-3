@@ -14,7 +14,7 @@ public class CategoryService : ICategoryService
     private IUnitOfWork DataBase { get; set; }
     private IMapper _mapper = new MapperConfiguration(x => x.AddProfile<AppMappingProfile>()).CreateMapper();
 
-    public async Task InsertCategoryAsync(CategoryRequestDto categoryDto, CancellationToken cancellationToken)
+    public async Task<int> InsertCategoryAsync(CategoryRequestDto categoryDto, CancellationToken cancellationToken)
     {
         CheckFields(categoryDto, cancellationToken);
         var allCats = await ServiceHelper.CheckAndGetEntitiesAsync(DataBase.Category.GetAllAsync, cancellationToken);
@@ -22,7 +22,7 @@ public class CategoryService : ICategoryService
         NonUniqueException.EnsureUnique(allCats, c => c.Name == categoryDto.Name,
             $"Category name {categoryDto.Name} is not unique");
 
-        await DataBase.Category.InsertAsync(_mapper.Map<Category>(categoryDto), cancellationToken);
+        return await DataBase.Category.InsertAsync(_mapper.Map<Category>(categoryDto), cancellationToken);
     }
 
     public async Task UpdateCategoryAsync(int id, CategoryRequestDto categoryDto, CancellationToken cancellationToken)
@@ -59,6 +59,14 @@ public class CategoryService : ICategoryService
         var cat = await ServiceHelper.CheckAndGetEntityAsync(DataBase.Category.GetByIdAsync, id, cancellationToken);
 
         await DataBase.Category.DeleteAsync(cat, cancellationToken);
+    }
+
+    public async Task<IEnumerable<ProductResponseDto>> GetProductsAsync(int categoryId,
+        CancellationToken cancellationToken)
+    {
+        var cat = await ServiceHelper.CheckAndGetEntityAsync(DataBase.Category.GetByIdAsync, categoryId,
+            cancellationToken);
+        return _mapper.Map<IEnumerable<ProductResponseDto>>(cat.Products);
     }
 
     public static void CheckFields(CategoryRequestDto categoryDto, CancellationToken cancellationToken)
