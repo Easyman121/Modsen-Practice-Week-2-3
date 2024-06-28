@@ -14,7 +14,7 @@ public class UserService : IUserService
     private IUnitOfWork DataBase { get; set; }
     private IMapper _mapper = new MapperConfiguration(x => x.AddProfile<AppMappingProfile>()).CreateMapper();
 
-    public async Task InsertUserAsync(UserRequestDto userDto, CancellationToken cancellationToken)
+    public async Task<int> InsertUserAsync(UserRequestDto userDto, CancellationToken cancellationToken)
     {
         CheckFields(userDto, cancellationToken);
         var allUsers = await ServiceHelper.CheckAndGetEntitiesAsync(DataBase.User.GetAllAsync, cancellationToken);
@@ -22,7 +22,7 @@ public class UserService : IUserService
         NonUniqueException.EnsureUnique(allUsers, c => c.Email == userDto.Email, "Email is already taken");
         var user = _mapper.Map<User>(userDto);
 
-        await DataBase.User.InsertAsync(user, cancellationToken);
+        return await DataBase.User.InsertAsync(user, cancellationToken);
     }
 
     public async Task UpdateUserAsync(int id, UserRequestDto userDto, CancellationToken cancellationToken)

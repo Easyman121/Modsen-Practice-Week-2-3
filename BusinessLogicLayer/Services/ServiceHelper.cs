@@ -33,4 +33,18 @@ public class ServiceHelper
 
         return data;
     }
+
+    public static async Task<List<TEntity>> CheckAndGetEntitiesByIdAsync<TEntity>
+    (Func<int, CancellationToken, Task<List<TEntity>>> getAllByIdAsync, int id,
+        CancellationToken cancellationToken)
+        where TEntity : Model
+    {
+        var data = await getAllByIdAsync(id, cancellationToken);
+        if (data.Count == 0)
+        {
+            throw new RequestDtoException("The list is empty");
+        }
+
+        return data;
+    }
 }

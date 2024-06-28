@@ -13,11 +13,11 @@ public class OrderService
     private IUnitOfWork DataBase { get; set; }
     private IMapper _mapper = new MapperConfiguration(x => x.AddProfile<AppMappingProfile>()).CreateMapper();
 
-    public async Task InsertOrderAsync(OrderRequestDto orderDto, CancellationToken cancellationToken)
+    public async Task<int> InsertOrderAsync(OrderRequestDto orderDto, CancellationToken cancellationToken)
     {
         CheckFields(orderDto, cancellationToken);
         var order = _mapper.Map<Order>(orderDto);
-        await DataBase.Order.InsertAsync(order, cancellationToken);
+        return await DataBase.Order.InsertAsync(order, cancellationToken);
     }
 
     public async Task DeleteOrderAsync(int id, CancellationToken cancellationToken)
