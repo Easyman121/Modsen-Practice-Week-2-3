@@ -3,7 +3,6 @@
 namespace BusinessLogicLayer.Exceptions;
 
 public class NonUniqueException : Exception
-
 {
     public NonUniqueException(string message) : base(message)
     {
