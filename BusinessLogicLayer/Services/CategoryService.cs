@@ -9,18 +9,20 @@ using DataAccessLayer.Repositories.Interfaces;
 
 namespace BusinessLogicLayer.Services;
 
-public class CategoryService : ICategoryService
+public class CategoryService(IUnitOfWork DataBase) : ICategoryService
 {
-    private IUnitOfWork DataBase { get; set; }
     private IMapper _mapper = new MapperConfiguration(x => x.AddProfile<AppMappingProfile>()).CreateMapper();
 
     public async Task<int> InsertCategoryAsync(CategoryRequestDto categoryDto, CancellationToken cancellationToken)
     {
         CheckFields(categoryDto, cancellationToken);
-        var allCats = await ServiceHelper.CheckAndGetEntitiesAsync(DataBase.Category.GetAllAsync, cancellationToken);
+        var allCats = await ServiceHelper.GetEntitiesAsync(DataBase.Category.GetAllAsync, cancellationToken);
 
-        NonUniqueException.EnsureUnique(allCats, c => c.Name == categoryDto.Name,
-            $"Category name {categoryDto.Name} is not unique");
+        if (allCats.Count != 0)
+        {
+            NonUniqueException.EnsureUnique(allCats, c => c.Name == categoryDto.Name,
+                $"Category name {categoryDto.Name} is not unique");
+        }
 
         return await DataBase.Category.InsertAsync(_mapper.Map<Category>(categoryDto), cancellationToken);
     }
@@ -49,7 +51,7 @@ public class CategoryService : ICategoryService
 
     public async Task<IEnumerable<CategoryResponseDto>> GetCategoriesAsync(CancellationToken cancellationToken)
     {
-        var cats = await ServiceHelper.CheckAndGetEntitiesAsync(DataBase.Category.GetAllAsync, cancellationToken);
+        var cats = await ServiceHelper.GetEntitiesAsync(DataBase.Category.GetAllAsync, cancellationToken);
 
         return _mapper.Map<IEnumerable<CategoryResponseDto>>(cats);
     }
@@ -66,6 +68,7 @@ public class CategoryService : ICategoryService
     {
         var cat = await ServiceHelper.CheckAndGetEntityAsync(DataBase.Category.GetByIdAsync, categoryId,
             cancellationToken);
+
         return _mapper.Map<IEnumerable<ProductResponseDto>>(cat.Products);
     }
 
