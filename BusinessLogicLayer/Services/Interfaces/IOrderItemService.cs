@@ -6,7 +6,7 @@ namespace BusinessLogicLayer.Services.Interfaces;
 public interface IOrderItemService
 {
     Task<int> InsertOrderItemAsync(OrderItemRequestDto orderItemDto, CancellationToken cancellationToken);
-    Task UpdateOrderItemAsync(int id, CancellationToken cancellationToken);
+    Task UpdateOrderItemAsync(int id, OrderItemRequestDto orderItemDto, CancellationToken cancellationToken);
     Task DeleteOrderItemAsync(int id, CancellationToken cancellationToken);
     Task<OrderItemResponseDto> GetOrderItemAsync(int id, CancellationToken cancellationToken);
     Task<IEnumerable<OrderItemResponseDto>> GetOrderItemsAsync(CancellationToken cancellationToken);
