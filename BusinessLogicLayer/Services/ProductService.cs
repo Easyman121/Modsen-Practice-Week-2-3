@@ -9,7 +9,7 @@ using DataAccessLayer.Repositories.Interfaces;
 
 namespace BusinessLogicLayer.Services;
 
-internal class ProductService : IProductService
+public class ProductService : IProductService
 {
     private IUnitOfWork DataBase { get; set; }
     private IMapper _mapper = new MapperConfiguration(x => x.AddProfile<AppMappingProfile>()).CreateMapper();

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessLayer.Repositories;
 
-internal class OrderRepository : GenericRepository<Order>, IOrderRepository
+public class OrderRepository : GenericRepository<Order>, IOrderRepository
 {
     public OrderRepository(AppContext context) : base(context)
     {

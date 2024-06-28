@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace BusinessLogicLayer.Services;
 
-namespace BusinessLogicLayer.Services
+public class OrderItemService
 {
-    internal class OrderItemService
-    {
-    }
 }

@@ -8,7 +8,7 @@ using DataAccessLayer.Repositories.Interfaces;
 
 namespace BusinessLogicLayer.Services;
 
-internal class OrderService
+public class OrderService
 {
     private IUnitOfWork DataBase { get; set; }
     private IMapper _mapper = new MapperConfiguration(x => x.AddProfile<AppMappingProfile>()).CreateMapper();
@@ -40,6 +40,12 @@ internal class OrderService
         return _mapper.Map<IEnumerable<OrderResponseDto>>(orders);
     }
 
+    public async Task<UserResponseDto> GetUserAsync(int orderId, CancellationToken cancellationToken)
+    {
+        var order = await ServiceHelper.CheckAndGetEntityAsync(DataBase.Order.GetOrderDetailsAsync, orderId,
+            cancellationToken);
+        return _mapper.Map<UserResponseDto>(order.User);
+    }
 
     private static void CheckFields(OrderRequestDto orderDto, CancellationToken cancellationToken)
     {
