@@ -25,12 +25,6 @@ public class OrderItemService(IUnitOfWork uow) : IOrderItemService
         }
 
         var orderItem = _mapper.Map<OrderItem>(orderItemDto);
-        orderItem.Order =
-            await ServiceHelper.CheckAndGetEntityAsync(uow.Order.GetOrderDetailsAsync, orderItem.OrderId,
-                cancellationToken);
-        orderItem.Product =
-            await ServiceHelper.CheckAndGetEntityAsync(uow.Product.GetByIdAsync, orderItem.ProductId,
-                cancellationToken);
         return await uow.OrderItem.InsertAsync(orderItem, cancellationToken);
     }
 
@@ -38,25 +32,20 @@ public class OrderItemService(IUnitOfWork uow) : IOrderItemService
         CancellationToken cancellationToken)
     {
         CheckFieldsAndToken(orderItemDto, cancellationToken);
-        var oldOrderItem =
+        var orderItem =
             await ServiceHelper.CheckAndGetEntityAsync(uow.OrderItem.GetByIdAsync, id, cancellationToken);
         var allOrderItems = await ServiceHelper.CheckAndGetEntitiesAsync(uow.OrderItem.GetAllAsync, cancellationToken);
-        if (oldOrderItem.OrderId == orderItemDto.OrderId && oldOrderItem.ProductId == orderItemDto.ProductId)
+        if (orderItem.OrderId == orderItemDto.OrderId && orderItem.ProductId == orderItemDto.ProductId)
         {
             NonUniqueException.EnsureUnique(allOrderItems,
                 c => c.OrderId == orderItemDto.OrderId && c.ProductId == orderItemDto.ProductId,
                 "Order item is not unique");
         }
 
-        var newOrderItem = _mapper.Map<OrderItem>(orderItemDto);
-        newOrderItem.Id = oldOrderItem.Id;
-        newOrderItem.Product =
-            await ServiceHelper.CheckAndGetEntityAsync(uow.Product.GetByIdAsync, newOrderItem.ProductId,
-                cancellationToken);
-        newOrderItem.Order =
-            await ServiceHelper.CheckAndGetEntityAsync(uow.Order.GetOrderDetailsAsync, newOrderItem.OrderId,
-                cancellationToken);
-        await uow.OrderItem.UpdateAsync(newOrderItem, cancellationToken);
+        orderItem.OrderId = orderItemDto.OrderId;
+        orderItem.ProductId = orderItemDto.ProductId;
+        orderItem.Count = orderItemDto.Count;
+        await uow.OrderItem.UpdateAsync(orderItem, cancellationToken);
     }
 
 
