@@ -3,11 +3,12 @@ using BusinessLogicLayer.DTO.Response;
 
 namespace BusinessLogicLayer.Services.Interfaces;
 
-internal interface IUserService
+public interface IUserService
 {
-    Task SetUserAsync(UserRequestDto userDto, CancellationToken cancellationToken);
+    Task<int> InsertUserAsync(UserRequestDto userDto, CancellationToken cancellationToken);
+    Task UpdateUserAsync(int id, UserRequestDto userDto, CancellationToken cancellationToken);
+    Task DeleteUserAsync(int id, CancellationToken cancellationToken);
     Task<UserResponseDto> GetUserAsync(int id, CancellationToken cancellationToken);
     Task<IEnumerable<UserResponseDto>> GetUsersAsync(CancellationToken cancellationToken);
-    Task<UserResponseDto> LoginAsync(UserRequestDto userDto, CancellationToken cancellationToken);
-    Task<UserResponseDto> RegistrationAsync(UserRequestDto userDto, CancellationToken cancellationToken);
+    Task<IEnumerable<OrderResponseDto>> GetOrdersAsync(int userId, CancellationToken cancellationToken);
 }

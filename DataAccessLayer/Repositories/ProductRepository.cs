@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessLayer.Repositories;
 
-internal class ProductRepository : GenericRepository<Product>, IProductRepository
+public class ProductRepository : GenericRepository<Product>, IProductRepository
 {
     public ProductRepository(AppContext context) : base(context)
     {
