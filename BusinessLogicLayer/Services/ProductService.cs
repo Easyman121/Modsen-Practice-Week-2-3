@@ -9,20 +9,22 @@ using DataAccessLayer.Repositories.Interfaces;
 
 namespace BusinessLogicLayer.Services;
 
-public class ProductService : IProductService
+public class ProductService(IUnitOfWork DataBase) : IProductService
 {
-    private IUnitOfWork DataBase { get; set; }
     private IMapper _mapper = new MapperConfiguration(x => x.AddProfile<AppMappingProfile>()).CreateMapper();
 
-    public async Task InsertProductAsync(ProductRequestDto productDto, CancellationToken cancellationToken)
+    public async Task<int> InsertProductAsync(ProductRequestDto productDto, CancellationToken cancellationToken)
     {
         CheckFields(productDto, cancellationToken);
-        var allProds = await ServiceHelper.CheckAndGetEntitiesAsync(DataBase.Product.GetAllAsync, cancellationToken);
+        var allProds = await ServiceHelper.GetEntitiesAsync(DataBase.Product.GetAllAsync, cancellationToken);
+        if (allProds.Count != 0)
+        {
+            NonUniqueException.EnsureUnique(allProds, c => c.Name == productDto.Name,
+                $"Product name {productDto.Name} is not unique");
+        }
 
-        NonUniqueException.EnsureUnique(allProds, c => c.Name == productDto.Name,
-            $"Product name {productDto.Name} is not unique");
 
-        await DataBase.Product.InsertAsync(_mapper.Map<Product>(productDto), cancellationToken);
+        return await DataBase.Product.InsertAsync(_mapper.Map<Product>(productDto), cancellationToken);
     }
 
     public async Task UpdateProductAsync(int id, ProductRequestDto productDto, CancellationToken cancellationToken)
@@ -53,7 +55,7 @@ public class ProductService : IProductService
 
     public async Task<IEnumerable<ProductResponseDto>> GetProductsAsync(CancellationToken cancellationToken)
     {
-        var prods = await ServiceHelper.CheckAndGetEntitiesAsync(DataBase.Product.GetAllAsync, cancellationToken);
+        var prods = await ServiceHelper.GetEntitiesAsync(DataBase.Product.GetAllAsync, cancellationToken);
 
         return _mapper.Map<IEnumerable<ProductResponseDto>>(prods);
     }
@@ -63,6 +65,13 @@ public class ProductService : IProductService
         var prod = await ServiceHelper.CheckAndGetEntityAsync(DataBase.Product.GetByIdAsync, id, cancellationToken);
 
         await DataBase.Product.DeleteAsync(prod, cancellationToken);
+    }
+
+    public async Task<CategoryResponseDto> GetCategoryAsync(int productId, CancellationToken cancellationToken)
+    {
+        var prod = await ServiceHelper.CheckAndGetEntityAsync(DataBase.Product.GetByIdAsync, productId,
+            cancellationToken);
+        return _mapper.Map<CategoryResponseDto>(prod.Category);
     }
 
     public static void CheckFields(ProductRequestDto productDto, CancellationToken cancellationToken)
