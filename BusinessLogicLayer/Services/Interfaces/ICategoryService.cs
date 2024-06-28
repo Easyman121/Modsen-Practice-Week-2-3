@@ -3,7 +3,7 @@ using BusinessLogicLayer.DTO.Response;
 
 namespace BusinessLogicLayer.Services.Interfaces;
 
-internal interface ICategoryService
+public interface ICategoryService
 {
     Task InsertCategoryAsync(CategoryRequestDto categoryDto, CancellationToken cancellationToken);
     Task UpdateCategoryAsync(int id, CategoryRequestDto newCategoryDto, CancellationToken cancellationToken);

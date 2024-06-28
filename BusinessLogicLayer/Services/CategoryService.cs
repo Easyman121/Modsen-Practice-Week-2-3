@@ -9,7 +9,7 @@ using DataAccessLayer.Repositories.Interfaces;
 
 namespace BusinessLogicLayer.Services;
 
-internal class CategoryService : ICategoryService
+public class CategoryService : ICategoryService
 {
     private IUnitOfWork DataBase { get; set; }
     private IMapper _mapper = new MapperConfiguration(x => x.AddProfile<AppMappingProfile>()).CreateMapper();
@@ -17,11 +17,10 @@ internal class CategoryService : ICategoryService
     public async Task InsertCategoryAsync(CategoryRequestDto categoryDto, CancellationToken cancellationToken)
     {
         CheckFields(categoryDto, cancellationToken);
-        var allCats = await DataBase.Category.GetAllAsync(cancellationToken);
-        if (allCats.Exists(c => c.Name == categoryDto.Name))
-        {
-            throw new RequestDtoException("The name is not unique");
-        }
+        var allCats = await ServiceHelper.CheckAndGetEntitiesAsync(DataBase.Category.GetAllAsync, cancellationToken);
+
+        NonUniqueException.EnsureUnique(allCats, c => c.Name == categoryDto.Name,
+            $"Category name {categoryDto.Name} is not unique");
 
         await DataBase.Category.InsertAsync(_mapper.Map<Category>(categoryDto), cancellationToken);
     }
@@ -29,77 +28,43 @@ internal class CategoryService : ICategoryService
     public async Task UpdateCategoryAsync(int id, CategoryRequestDto categoryDto, CancellationToken cancellationToken)
     {
         CheckFields(categoryDto, cancellationToken);
-        if (id < 0)
-        {
-            throw new RequestDtoException("Id must be 0 and higher");
-        }
 
-        var cat = await DataBase.Category.GetByIdAsync(id, cancellationToken);
-        if (cat == null)
-        {
-            throw new RequestDtoException("No entries found");
-        }
+        var allCats = await ServiceHelper.CheckAndGetEntitiesAsync(DataBase.Category.GetAllAsync, cancellationToken);
 
+        NonUniqueException.EnsureUnique(allCats, c => c.Name == categoryDto.Name,
+            $"Category name {categoryDto.Name} is not unique");
+
+        var cat = await ServiceHelper.CheckAndGetEntityAsync(DataBase.Category.GetByIdAsync, id, cancellationToken);
         cat.Name = categoryDto.Name;
-        DataBase.Category.UpdateAsync(cat, cancellationToken);
+
+        await DataBase.Category.UpdateAsync(cat, cancellationToken);
     }
 
     public async Task<CategoryResponseDto> GetCategoryAsync(int id, CancellationToken cancellationToken)
     {
-        if (id < 0)
-        {
-            throw new RequestDtoException("Id must be 0 and higher");
-        }
-
-        var cat = await DataBase.Category.GetByIdAsync(id, cancellationToken);
-        if (cat == null)
-        {
-            throw new RequestDtoException("No entries found");
-        }
+        var cat = await ServiceHelper.CheckAndGetEntityAsync(DataBase.Category.GetByIdAsync, id, cancellationToken);
 
         return _mapper.Map<CategoryResponseDto>(cat);
     }
 
     public async Task<IEnumerable<CategoryResponseDto>> GetCategoriesAsync(CancellationToken cancellationToken)
     {
-        var cats = await DataBase.Category.GetAllAsync(cancellationToken);
-
-        foreach (var cat in cats)
-        {
-            if (cat == null)
-            {
-                throw new RequestDtoException("The entry is empty");
-            }
-        }
-
-        if (cats == null)
-        {
-            throw new RequestDtoException("The list is empty");
-        }
+        var cats = await ServiceHelper.CheckAndGetEntitiesAsync(DataBase.Category.GetAllAsync, cancellationToken);
 
         return _mapper.Map<IEnumerable<CategoryResponseDto>>(cats);
     }
 
     public async Task DeleteCategoryAsync(int id, CancellationToken cancellationToken)
     {
-        if (id < 0)
-        {
-            throw new RequestDtoException("Id must be 0 and higher");
-        }
+        var cat = await ServiceHelper.CheckAndGetEntityAsync(DataBase.Category.GetByIdAsync, id, cancellationToken);
 
-        var cat = await DataBase.Category.GetByIdAsync(id, cancellationToken);
-        if (cat == null)
-        {
-            throw new RequestDtoException("No entries found");
-        }
-
-        DataBase.Category.DeleteAsync(cat, cancellationToken);
+        await DataBase.Category.DeleteAsync(cat, cancellationToken);
     }
 
     public static void CheckFields(CategoryRequestDto categoryDto, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(categoryDto);
         ArgumentNullException.ThrowIfNull(cancellationToken);
-        ArgumentException.ThrowIfNullOrWhiteSpace(categoryDto.Name);
+        RequestDtoException.ThrowIfNullOrWhiteSpace(categoryDto.Name);
     }
 }

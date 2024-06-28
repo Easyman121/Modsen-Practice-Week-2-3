@@ -9,7 +9,7 @@ using DataAccessLayer.Repositories.Interfaces;
 
 namespace BusinessLogicLayer.Services;
 
-internal class UserService : IUserService
+public class UserService : IUserService
 {
     private IUnitOfWork DataBase { get; set; }
     private IMapper _mapper = new MapperConfiguration(x => x.AddProfile<AppMappingProfile>()).CreateMapper();
@@ -17,81 +17,80 @@ internal class UserService : IUserService
     public async Task InsertUserAsync(UserRequestDto userDto, CancellationToken cancellationToken)
     {
         CheckFields(userDto, cancellationToken);
-        var allUsers = await DataBase.User.GetAllAsync(cancellationToken);
-        if (allUsers.Exists(c => c.UserName == userDto.UserName))
-        {
-            throw new RequestDtoException("Username is already taken");
-        }
+        var allUsers = await ServiceHelper.CheckAndGetEntitiesAsync(DataBase.User.GetAllAsync, cancellationToken);
+        NonUniqueException.EnsureUnique(allUsers, c => c.UserName == userDto.UserName, "Username is already taken");
+        NonUniqueException.EnsureUnique(allUsers, c => c.Email == userDto.Email, "Email is already taken");
+        var user = _mapper.Map<User>(userDto);
 
-        if (allUsers.Exists(c => c.Email == userDto.Email))
-        {
-            throw new RequestDtoException("Email is already registered");
-        }
-
-        await DataBase.User.InsertAsync(_mapper.Map<User>(userDto), cancellationToken);
+        await DataBase.User.InsertAsync(user, cancellationToken);
     }
 
     public async Task UpdateUserAsync(int id, UserRequestDto userDto, CancellationToken cancellationToken)
     {
         CheckFields(userDto, cancellationToken);
-        var user = await CheckAndGetUser(id, cancellationToken);
+        var userOld =
+            await ServiceHelper.CheckAndGetEntityAsync(DataBase.User.GetByIdAsync, id, cancellationToken);
 
-        DataBase.User.UpdateAsync(_mapper.Map<User>(userDto), cancellationToken);
+        var allUsers = await ServiceHelper.CheckAndGetEntitiesAsync(DataBase.User.GetAllAsync, cancellationToken);
+
+        if (userOld.Email != userDto.Email)
+        {
+            NonUniqueException.EnsureUnique(allUsers, c => c.Email == userDto.Email, "Email is already taken");
+        }
+
+        if (userOld.UserName != userDto.UserName)
+        {
+            NonUniqueException.EnsureUnique(allUsers, c => c.UserName == userDto.UserName, "Username is already taken");
+        }
+
+        var userNew = _mapper.Map<User>(userDto);
+        userNew.Id = id;
+        await DataBase.User.UpdateAsync(userNew, cancellationToken);
     }
 
     public async Task DeleteUserAsync(int id, CancellationToken cancellationToken)
     {
-        var user = await CheckAndGetUser(id, cancellationToken);
-        DataBase.User.DeleteAsync(user, cancellationToken);
+        var user = await ServiceHelper.CheckAndGetEntityAsync(DataBase.User.GetByIdAsync, id, cancellationToken);
+        await DataBase.User.DeleteAsync(user, cancellationToken);
     }
 
     public async Task<UserResponseDto> GetUserAsync(int id, CancellationToken cancellationToken)
     {
-        var user = await CheckAndGetUser(id, cancellationToken);
+        var user = await ServiceHelper.CheckAndGetEntityAsync(DataBase.User.GetByIdAsync, id, cancellationToken);
         return _mapper.Map<UserResponseDto>(user);
     }
 
     public async Task<IEnumerable<UserResponseDto>> GetUsersAsync(CancellationToken cancellationToken)
     {
-        var users = await DataBase.User.GetAllAsync(cancellationToken);
+        var users = await ServiceHelper.CheckAndGetEntitiesAsync(DataBase.User.GetAllAsync, cancellationToken);
 
-        foreach (var user in users)
-        {
-            if (user == null)
-            {
-                throw new RequestDtoException("The entry is empty");
-            }
-        }
+        return _mapper.Map<IEnumerable<UserResponseDto>>(users);
+    }
 
-        if (users == null)
+    public async Task<IEnumerable<OrderResponseDto>> GetOrdersAsync(int userId, CancellationToken cancellationToken)
+    {
+        var orders = await CheckAndGetOrdersByIdAsync(userId, cancellationToken);
+        return _mapper.Map<IEnumerable<OrderResponseDto>>(orders);
+    }
+
+    private async Task<IEnumerable<Order>> CheckAndGetOrdersByIdAsync(int id, CancellationToken cancellationToken)
+    {
+        var orders = await DataBase.Order.GetOrdersByUserAsync(id, cancellationToken);
+
+        if (orders.Count == 0)
         {
             throw new RequestDtoException("The list is empty");
         }
 
-        return _mapper.Map<IEnumerable<UserResponseDto>>(users);
+        return orders;
     }
 
     private static void CheckFields(UserRequestDto userDto, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(userDto);
         ArgumentNullException.ThrowIfNull(cancellationToken);
-        ArgumentException.ThrowIfNullOrWhiteSpace(userDto.Email);
-        ArgumentException.ThrowIfNullOrWhiteSpace(userDto.UserName);
-    }
-
-    private async Task<User> CheckAndGetUser(int id, CancellationToken cancellationToken)
-    {
-        if (id < 0)
-        {
-            throw new ArgumentException("Id is lower than 0");
-        }
-
-        var user = await DataBase.User.GetByIdAsync(id, cancellationToken);
-        if (user == null)
-        {
-            throw new RequestDtoException("No user entries found");
-        }
-
-        return user;
+        RequestDtoException.ThrowIfNullOrWhiteSpace(userDto.Email);
+        RequestDtoException.ThrowIfNullOrWhiteSpace(userDto.UserName);
+        RequestDtoException.ThrowIfNull(userDto.PasswordHash);
     }
 }
