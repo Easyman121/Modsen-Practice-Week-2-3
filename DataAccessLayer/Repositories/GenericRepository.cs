@@ -18,7 +18,7 @@ public class GenericRepository<TEntity> : IRepository<TEntity> where TEntity : M
         => await Context.Set<TEntity>().FindAsync([id], cancellationToken).AsTask();
 
     public virtual async Task<List<TEntity>> GetAllAsync(CancellationToken cancellationToken)
-        => await Context.Set<TEntity>().ToListAsync(cancellationToken);
+        => await Context.Set<TEntity>().OrderBy(t => t.Id).ToListAsync(cancellationToken);
 
     public virtual async Task<int> InsertAsync(TEntity entity, CancellationToken cancellationToken)
     {
