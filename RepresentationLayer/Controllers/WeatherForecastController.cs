@@ -1,4 +1,3 @@
-using BusinessLogicLayer.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace RepresentationLayer.Controllers
@@ -22,7 +21,6 @@ namespace RepresentationLayer.Controllers
         [HttpGet(Name = "GetWeatherForecast")]
         public IEnumerable<WeatherForecast> Get()
         {
-            throw new TestCustomException();
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
                 {
                     Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
