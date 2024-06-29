@@ -22,6 +22,11 @@ public class NonUniqueException : Exception
             throw new ArgumentNullException(colName, $"{colName} is empty or null");
         }
 
+        if (collection.Count == 1)
+        {
+            return;
+        }
+
         if (uniquenessPredicate == null)
         {
             throw new ArgumentNullException(predName, "Predicate expression is null");
