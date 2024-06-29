@@ -3,7 +3,6 @@
 namespace BusinessLogicLayer.Exceptions;
 
 public class NonUniqueException : Exception
-
 {
     public NonUniqueException(string message) : base(message)
     {
@@ -21,6 +20,11 @@ public class NonUniqueException : Exception
         if (collection == null || collection.Count == 0)
         {
             throw new ArgumentNullException(colName, $"{colName} is empty or null");
+        }
+
+        if (collection.Count == 1)
+        {
+            return;
         }
 
         if (uniquenessPredicate == null)
