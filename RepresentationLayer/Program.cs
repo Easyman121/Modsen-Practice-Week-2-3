@@ -1,3 +1,4 @@
+using BusinessLogicLayer.Authentification;
 using BusinessLogicLayer.DTO;
 using BusinessLogicLayer.Services;
 using BusinessLogicLayer.Services.Interfaces;
@@ -44,6 +45,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<JwtMiddleware>();
 
 app.UseHttpsRedirection();
 
