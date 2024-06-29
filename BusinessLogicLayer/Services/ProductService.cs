@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using BusinessLogicLayer.DTO;
 using BusinessLogicLayer.DTO.Request;
 using BusinessLogicLayer.DTO.Response;
 using BusinessLogicLayer.Exceptions;
@@ -9,10 +8,8 @@ using DataAccessLayer.Repositories.Interfaces;
 
 namespace BusinessLogicLayer.Services;
 
-public class ProductService(IUnitOfWork uow) : IProductService
+public class ProductService(IUnitOfWork uow, IMapper mapper) : IProductService
 {
-    private IMapper _mapper = new MapperConfiguration(x => x.AddProfile<AppMappingProfile>()).CreateMapper();
-
     public async Task<int> InsertProductAsync(ProductRequestDto productDto, CancellationToken cancellationToken)
     {
         CheckFieldsAndToken(productDto, cancellationToken);
@@ -23,7 +20,7 @@ public class ProductService(IUnitOfWork uow) : IProductService
                 $"Product name {productDto.Name} is not unique");
         }
 
-        var prod = _mapper.Map<Product>(productDto);
+        var prod = mapper.Map<Product>(productDto);
         return await uow.Product.InsertAsync(prod, cancellationToken);
     }
 
@@ -33,7 +30,7 @@ public class ProductService(IUnitOfWork uow) : IProductService
         var prod =
             await ServiceHelper.CheckAndGetEntityAsync<Product>(uow.Product.GetByIdAsync, id, cancellationToken);
 
-        var allProds = await ServiceHelper.CheckAndGetEntitiesAsync(uow.Product.GetAllAsync, cancellationToken);
+        var allProds = await ServiceHelper.GetEntitiesAsync(uow.Product.GetAllAsync, cancellationToken);
 
         if (prod.Name != productDto.Name)
         {
@@ -53,14 +50,14 @@ public class ProductService(IUnitOfWork uow) : IProductService
     {
         var prod = await ServiceHelper.CheckAndGetEntityAsync(uow.Product.GetByIdAsync, id, cancellationToken);
 
-        return _mapper.Map<ProductResponseDto>(prod);
+        return mapper.Map<ProductResponseDto>(prod);
     }
 
     public async Task<IEnumerable<ProductResponseDto>> GetProductsAsync(CancellationToken cancellationToken)
     {
         var prods = await ServiceHelper.GetEntitiesAsync(uow.Product.GetAllAsync, cancellationToken);
 
-        return _mapper.Map<IEnumerable<ProductResponseDto>>(prods);
+        return mapper.Map<IEnumerable<ProductResponseDto>>(prods);
     }
 
     public async Task DeleteProductAsync(int id, CancellationToken cancellationToken)
@@ -74,7 +71,7 @@ public class ProductService(IUnitOfWork uow) : IProductService
     {
         var prod = await ServiceHelper.CheckAndGetEntityAsync(uow.Product.GetByIdAsync, productId,
             cancellationToken);
-        return _mapper.Map<CategoryResponseDto>(prod.Category);
+        return mapper.Map<CategoryResponseDto>(prod.Category);
     }
 
     public static void CheckFieldsAndToken(ProductRequestDto productDto, CancellationToken cancellationToken)
