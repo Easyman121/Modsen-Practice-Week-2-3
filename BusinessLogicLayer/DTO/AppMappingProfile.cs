@@ -46,7 +46,7 @@ public class AppMappingProfile : Profile
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.DateTime, opt => opt.MapFrom(src => src.DateTime))
             .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
-            .ForMember(dest => dest.Items, opt => opt.Ignore());
+            .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderItems));
 
         CreateMap<Product, ProductResponseDto>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
