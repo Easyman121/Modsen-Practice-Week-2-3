@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using BusinessLogicLayer.DTO;
 using BusinessLogicLayer.DTO.Request;
 using BusinessLogicLayer.DTO.Response;
 using BusinessLogicLayer.Exceptions;
@@ -9,10 +8,8 @@ using DataAccessLayer.Repositories.Interfaces;
 
 namespace BusinessLogicLayer.Services;
 
-public class UserService(IUnitOfWork uow) : IUserService
+public class UserService(IUnitOfWork uow, IMapper mapper) : IUserService
 {
-    private readonly IMapper _mapper = new MapperConfiguration(x => x.AddProfile<AppMappingProfile>()).CreateMapper();
-
     public async Task<int> InsertUserAsync(UserRequestDto userDto, CancellationToken cancellationToken)
     {
         CheckFieldsAndToken(userDto, cancellationToken);
@@ -23,7 +20,7 @@ public class UserService(IUnitOfWork uow) : IUserService
             NonUniqueException.EnsureUnique(allUsers, c => c.Email == userDto.Email, "Email is already taken");
         }
 
-        var user = _mapper.Map<User>(userDto);
+        var user = mapper.Map<User>(userDto);
 
         return await uow.User.InsertAsync(user, cancellationToken);
     }
@@ -34,7 +31,7 @@ public class UserService(IUnitOfWork uow) : IUserService
         var user =
             await ServiceHelper.CheckAndGetEntityAsync(uow.User.GetByIdAsync, id, cancellationToken);
 
-        var allUsers = await ServiceHelper.CheckAndGetEntitiesAsync(uow.User.GetAllAsync, cancellationToken);
+        var allUsers = await ServiceHelper.GetEntitiesAsync(uow.User.GetAllAsync, cancellationToken);
         if (user.Email != userDto.Email)
         {
             NonUniqueException.EnsureUnique(allUsers, c => c.Email == userDto.Email, "Email is already taken");
@@ -62,20 +59,20 @@ public class UserService(IUnitOfWork uow) : IUserService
     public async Task<UserResponseDto> GetUserAsync(int id, CancellationToken cancellationToken)
     {
         var user = await ServiceHelper.CheckAndGetEntityAsync(uow.User.GetByIdAsync, id, cancellationToken);
-        return _mapper.Map<UserResponseDto>(user);
+        return mapper.Map<UserResponseDto>(user);
     }
 
     public async Task<IEnumerable<UserResponseDto>> GetUsersAsync(CancellationToken cancellationToken)
     {
         var users = await ServiceHelper.GetEntitiesAsync(uow.User.GetAllAsync, cancellationToken);
 
-        return _mapper.Map<IEnumerable<UserResponseDto>>(users);
+        return mapper.Map<IEnumerable<UserResponseDto>>(users);
     }
 
     public async Task<IEnumerable<OrderResponseDto>> GetOrdersAsync(int userId, CancellationToken cancellationToken)
     {
         var orders = await uow.Order.GetOrdersByUserAsync(userId, cancellationToken);
-        return _mapper.Map<IEnumerable<OrderResponseDto>>(orders);
+        return mapper.Map<IEnumerable<OrderResponseDto>>(orders);
     }
 
     private static void CheckFieldsAndToken(UserRequestDto userDto, CancellationToken cancellationToken)

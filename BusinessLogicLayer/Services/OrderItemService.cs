@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using BusinessLogicLayer.DTO;
 using BusinessLogicLayer.DTO.Request;
 using BusinessLogicLayer.DTO.Response;
 using BusinessLogicLayer.Exceptions;
@@ -9,10 +8,8 @@ using DataAccessLayer.Repositories.Interfaces;
 
 namespace BusinessLogicLayer.Services;
 
-public class OrderItemService(IUnitOfWork uow) : IOrderItemService
+public class OrderItemService(IUnitOfWork uow, IMapper mapper) : IOrderItemService
 {
-    private readonly IMapper _mapper = new MapperConfiguration(x => x.AddProfile<AppMappingProfile>()).CreateMapper();
-
     public async Task<int> InsertOrderItemAsync(OrderItemRequestDto orderItemDto, CancellationToken cancellationToken)
     {
         CheckFieldsAndToken(orderItemDto, cancellationToken);
@@ -24,7 +21,7 @@ public class OrderItemService(IUnitOfWork uow) : IOrderItemService
                 "Order item is not unique");
         }
 
-        var orderItem = _mapper.Map<OrderItem>(orderItemDto);
+        var orderItem = mapper.Map<OrderItem>(orderItemDto);
         return await uow.OrderItem.InsertAsync(orderItem, cancellationToken);
     }
 
@@ -34,7 +31,7 @@ public class OrderItemService(IUnitOfWork uow) : IOrderItemService
         CheckFieldsAndToken(orderItemDto, cancellationToken);
         var orderItem =
             await ServiceHelper.CheckAndGetEntityAsync(uow.OrderItem.GetByIdAsync, id, cancellationToken);
-        var allOrderItems = await ServiceHelper.CheckAndGetEntitiesAsync(uow.OrderItem.GetAllAsync, cancellationToken);
+        var allOrderItems = await ServiceHelper.GetEntitiesAsync(uow.OrderItem.GetAllAsync, cancellationToken);
         if (orderItem.OrderId == orderItemDto.OrderId && orderItem.ProductId == orderItemDto.ProductId)
         {
             NonUniqueException.EnsureUnique(allOrderItems,
@@ -60,28 +57,28 @@ public class OrderItemService(IUnitOfWork uow) : IOrderItemService
     {
         var orderItem =
             await ServiceHelper.CheckAndGetEntityAsync(uow.OrderItem.GetByIdAsync, id, cancellationToken);
-        return _mapper.Map<OrderItemResponseDto>(orderItem);
+        return mapper.Map<OrderItemResponseDto>(orderItem);
     }
 
     public async Task<IEnumerable<OrderItemResponseDto>> GetOrderItemsAsync(CancellationToken cancellationToken)
     {
         var orderItems =
-            await ServiceHelper.CheckAndGetEntitiesAsync(uow.OrderItem.GetAllAsync, cancellationToken);
-        return _mapper.Map<IEnumerable<OrderItemResponseDto>>(orderItems);
+            await ServiceHelper.GetEntitiesAsync(uow.OrderItem.GetAllAsync, cancellationToken);
+        return mapper.Map<IEnumerable<OrderItemResponseDto>>(orderItems);
     }
 
     public async Task<OrderResponseDto> GetOrderAsync(int orderItemId, CancellationToken cancellationToken)
     {
         var orderItem =
             await ServiceHelper.CheckAndGetEntityAsync(uow.OrderItem.GetByIdAsync, orderItemId, cancellationToken);
-        return _mapper.Map<OrderResponseDto>(orderItem.Order);
+        return mapper.Map<OrderResponseDto>(orderItem.Order);
     }
 
     public async Task<ProductResponseDto> GetProductAsync(int orderItemId, CancellationToken cancellationToken)
     {
         var orderItem =
             await ServiceHelper.CheckAndGetEntityAsync(uow.OrderItem.GetByIdAsync, orderItemId, cancellationToken);
-        return _mapper.Map<ProductResponseDto>(orderItem.Product);
+        return mapper.Map<ProductResponseDto>(orderItem.Product);
     }
 
     private static void CheckFieldsAndToken(OrderItemRequestDto orderItemDto, CancellationToken cancellationToken)
