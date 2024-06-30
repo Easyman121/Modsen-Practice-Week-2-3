@@ -7,8 +7,11 @@ using DataAccessLayer.Repositories.Interfaces;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
+using RepresentationLayer.ExceptionHandlers;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 // Add services to the container.
 
@@ -36,7 +39,10 @@ builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
 var app = builder.Build();
+
+app.UseExceptionHandler("/");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -44,6 +50,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
 
 app.UseHttpsRedirection();
 
