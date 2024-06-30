@@ -6,7 +6,7 @@ namespace BusinessLogicLayer.Services.Interfaces;
 
 public interface IUserService
 {
-    Task<AuthenticateResponse> AuthenticateAsync(UserRequestDto userRequest, CancellationToken cancellationToken);
+    Task<AuthenticateResponse?> AuthenticateAsync(UserRequestDto userRequest, CancellationToken cancellationToken);
     Task<int> InsertUserAsync(UserRequestDto userDto, CancellationToken cancellationToken);
     Task UpdateUserAsync(int id, UserRequestDto userDto, CancellationToken cancellationToken);
     Task DeleteUserAsync(int id, CancellationToken cancellationToken);

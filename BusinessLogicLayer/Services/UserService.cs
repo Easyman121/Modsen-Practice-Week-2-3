@@ -14,11 +14,13 @@ namespace BusinessLogicLayer.Services;
 
 public class UserService(IUnitOfWork uow, IMapper mapper) : IUserService
 {
-    public async Task<AuthenticateResponse> AuthenticateAsync(UserRequestDto userRequest, CancellationToken cancellationToken)
+    public async Task<AuthenticateResponse?> AuthenticateAsync(UserRequestDto userRequest, CancellationToken cancellationToken)
     {
         var user = (await ServiceHelper.GetEntitiesAsync(uow.User.GetAllAsync, cancellationToken)).SingleOrDefault(
             x => x.Email == userRequest.Email
             && Enumerable.SequenceEqual(x.PasswordHash, userRequest.PasswordHash));
+
+        if (user == null) return null;
 
         var token = await GenerateJwtTokenAsync(user);
 
