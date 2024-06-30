@@ -22,7 +22,7 @@ public class UserService(IUnitOfWork uow, IMapper mapper) : IUserService
 
         if (user == null) return null;
 
-        var token = await GenerateJwtTokenAsync(user);
+        var token = GenerateJwtToken(user);
 
         return new AuthenticateResponse
         {
@@ -105,18 +105,15 @@ public class UserService(IUnitOfWork uow, IMapper mapper) : IUserService
         RequestDtoException.ThrowIfNull(userDto.PasswordHash);
     }
 
-    private async Task<string> GenerateJwtTokenAsync(User user)
+    private string GenerateJwtToken(User user)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
-        var token = await Task.Run(() =>
+        var token = tokenHandler.CreateToken(
+        new SecurityTokenDescriptor
         {
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new[] { new Claim("id", user.Id.ToString()) }),
-                Expires = DateTime.UtcNow.AddDays(7),
-                SigningCredentials = new SigningCredentials(AuthConfiguration.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256Signature)
-            };
-            return tokenHandler.CreateToken(tokenDescriptor);
+            Subject = new ClaimsIdentity(new[] { new Claim("id", user.Id.ToString()) }),
+            Expires = DateTime.UtcNow.AddDays(7),
+            SigningCredentials = new SigningCredentials(AuthConfiguration.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256Signature)
         });
 
         return tokenHandler.WriteToken(token);
