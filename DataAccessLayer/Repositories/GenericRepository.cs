@@ -23,6 +23,7 @@ public class GenericRepository<TEntity> : IRepository<TEntity> where TEntity : M
     public virtual async Task<int> InsertAsync(TEntity entity, CancellationToken cancellationToken)
     {
         var entityEntry = await Context.Set<TEntity>().AddAsync(entity, cancellationToken);
+        await Context.SaveChangesAsync(cancellationToken);
         return entityEntry.Entity.Id;
     }
 
