@@ -1,15 +1,36 @@
 ﻿using AutoMapper;
+using BusinessLogicLayer.Authentification;
 using BusinessLogicLayer.DTO.Request;
 using BusinessLogicLayer.DTO.Response;
 using BusinessLogicLayer.Exceptions;
 using BusinessLogicLayer.Services.Interfaces;
 using DataAccessLayer.Models;
 using DataAccessLayer.Repositories.Interfaces;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace BusinessLogicLayer.Services;
 
 public class UserService(IUnitOfWork uow, IMapper mapper) : IUserService
 {
+    public async Task<AuthenticateResponse?> AuthenticateAsync(UserRequestDto userRequest, CancellationToken cancellationToken)
+    {
+        var user = (await ServiceHelper.GetEntitiesAsync(uow.User.GetAllAsync, cancellationToken)).SingleOrDefault(
+            x => x.Email == userRequest.Email
+            && Enumerable.SequenceEqual(x.PasswordHash, userRequest.PasswordHash));
+
+        if (user == null) return null;
+
+        var token = GenerateJwtToken(user);
+
+        return new AuthenticateResponse
+        {
+            User = mapper.Map<UserResponseDto>(user),
+            Token = token
+        };
+
+    }
     public async Task<int> InsertUserAsync(UserRequestDto userDto, CancellationToken cancellationToken)
     {
         CheckFieldsAndToken(userDto, cancellationToken);
@@ -82,5 +103,19 @@ public class UserService(IUnitOfWork uow, IMapper mapper) : IUserService
         RequestDtoException.ThrowIfNullOrWhiteSpace(userDto.Email);
         RequestDtoException.ThrowIfNullOrWhiteSpace(userDto.UserName);
         RequestDtoException.ThrowIfNull(userDto.PasswordHash);
+    }
+
+    private string GenerateJwtToken(User user)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var token = tokenHandler.CreateToken(
+        new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(new[] { new Claim("id", user.Id.ToString()) }),
+            Expires = DateTime.UtcNow.AddDays(7),
+            SigningCredentials = new SigningCredentials(AuthConfiguration.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256Signature)
+        });
+
+        return tokenHandler.WriteToken(token);
     }
 }

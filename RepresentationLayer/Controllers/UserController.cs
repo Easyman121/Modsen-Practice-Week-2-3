@@ -9,6 +9,23 @@ namespace RepresentationLayer.Controllers;
 [Route("[controller]/[action]")]
 public class UserController(ILogger<UserController> logger, IUserService userService) : ControllerBase
 {
+    [HttpPost("register")]
+    public async Task<IActionResult> Register(UserRequestDto userDto, CancellationToken token)
+    {
+        var userId = await userService.InsertUserAsync(userDto, token);
+        var userResponse = await userService.GetUserAsync(userId, token);
+
+        return await Login(userDto, token);
+    }
+
+    [HttpPost("login")]
+    public async Task<IActionResult> Login(UserRequestDto userDto, CancellationToken token)
+    {
+        var response = await userService.AuthenticateAsync(userDto, token);
+        if (response == null) return BadRequest(response);
+        return Ok(response);
+    }
+
     [HttpGet(Name = "GetUser")]
     public async Task<UserResponseDto> GetUserAsync(int id, CancellationToken token) =>
         await userService.GetUserAsync(id, token);
